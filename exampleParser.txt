@@ -1,0 +1,11 @@
+{defaultDelimiter,' ', str  }               #this is a comment too ####
+{anotherParameter,    10, int  }                #this is a comment
+{anotherParameter2,   'Lol',  str }             #this is a comment too ####
+
+.body
+    (n, int)  
+  [n,    inteiros,         int]   
+
+
+
+
