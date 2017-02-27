@@ -6,7 +6,7 @@
 
 
 
-(n, int) (name, str, {n})
+(n, int) (Name, str, {n})
 [myInts, list, {n}, (int)]
 [Names, list, {n}, (str, 2)]
 [Numbers, list, {n}, [temp, list, {n}, (int)]] #the temp varName is required but this will be considered a local variable so you can name it whatever you want
