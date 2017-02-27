@@ -40,20 +40,18 @@ Python lib to avoid wasting time in parsing input files data in contents and cha
 ## Examples
 
 - Simple int:
-`(x, int)`
-- String with 3 words:
-`(name, str, 3)`
-- Class instance with 4 parameters (one of which is a dict):
-`[peter, class, person, (int), (str), (float), {(int), (float)}]`
-- List of integers:
-`[myInts, list, 10, (int)]`
-- Dict with 10 elements:
-`[myDict, dict, {lengthtVariableName}, {(int), (string)}]`
-- List of pairs of dicts of int and string:
-`[varName, list, 10, [tempDict, dict, 2, {int, float}]`
-- List with variable lentgths:
-`[listSizes, list, 3, (int)]`
-`[lengthyStrings, list, 3, (str, {listSizes;lengthyStrings}), ]` the size of each string is in the corresponding index of the listSizes list
+
+| Purpose  | Parser File  | Input File | Result |
+| ---------| ------------ | ---------- | ------ |
+| Simple int | `(x, int)`  | 3        | x = int("3")|
+| Simple str | `(s, str)`  | MyString  | s = "MyString"|
+| Str with 3 words | `(S, str, 3)`  | A b C  | S = "A b C"|
+| list of 4 ints | `[myInts, list, 10, (int)]`  | 1 2 4 8  | myInts = [1,2,4,8]|
+| list of 3 ints (see `x` above) | `[myInts2, list, {x}, (int)]`  | 10 11 99  | myInts2 = [10,11,99]|
+| dict of 2 elements | `[myDict, dict, 2, {(int), (string)}]`  | 10 blue 20 green  | s = {{10:"blue"},{20:"green"}}|
+| list of 2 different sized strings | `[sizes, list, 2, (int)] [myStrings, list, 2, (str, {sizes;myStrings})]`  | 1 3  lorem ipsum dolor sit* | sizes = [1,3]; myStrings = ["lorem", "ipsum dolor sit"]|
+
+* the size of each string is in the corresponding index of the listSizes list
 
 ## Todo
 
