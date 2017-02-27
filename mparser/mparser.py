@@ -4,14 +4,6 @@ import re, tokenize, io, getopt
 
 #TODO: include set and frozenset, see tuple implementation in (varName, tuple, len) format
 
-####prohibited variable names in the parser file
-prohibitedVariableNames = ["argv", "regexSingleVar", "regexSingleVarLen", "regexComment", "regexCommentReplacement", "regexDuplicateWhitespace", "regexDuplicateParagraphs", "regexWhitespaceLeftBracket", "regexWhitespaceRightBracket", "regexCommasSpace", "regexCommasSpaceReplacement", "regexRemoveSingleQuoteFromString","regexRemoveDoubleQuoteFromString", "regexConfigurationVariables", "pythonTypes", "separatorString", "parserHead", "parserBody", "parseText", "parserVar", "inputText", "defaultDelimiter", "lineIndex", "line", "prohibitedVariableNames","regexSingleVarAnonymous","regexParseLenVariable","regexContainerVariable","regexClassVar","name"]#should not include parserTemp
-prohibitedVariableNames.sort()
-####Utils functions
-def assertValidName(name):
-    if name in prohibitedVariableNames:
-        print("ERROR - The variable name %s is restricted for program operations" % name)
-        exit()
 def displayUnavailableVariables():
     print("Unavailable variable names (alphabetically): ")
     print("\n".join(prohibitedVariableNames))
@@ -38,6 +30,7 @@ def displayUsage():
 
 
 ####Variable declarations
+createdVariables = dict()
     ####Important constants
 regexSingleVarAnonymous = r"^\(([^\(\),\s]+)\)"                             #format (type)
 regexSingleVar = r"^\(([^\(\),\s]+),([^\(\),\s]+)\)"                        #format (varName,type)
@@ -65,7 +58,7 @@ parserBody=""
 parseText=""
 inputText=""
 
-    ####configuration variables
+####configuration variables
 defaultDelimiter = ' '
 
 
@@ -121,15 +114,14 @@ def validTypeContainer(t):
     return t in ("list", "dict", "tuple", "set", "frozenset")
 
 def setGlobal(name, value, t, initializeOnly = False):#creates a global variable with a given value
-    assertValidName(name)
     if validTypeSingle(t):
-        globals()[name] = pythonTypes[t](value) #cast to type
+        createdVariables[name] = pythonTypes[t](value) #cast to type
     elif validTypeContainer(t):
         if initializeOnly:
-            globals()[name] = pythonTypes[t]()
+            createdVariables[name] = pythonTypes[t]()
         else:
-            globals()[name] = value
-    return globals()[name]
+            createdVariables[name] = value
+    return createdVariables[name]
 
 def setLocal(name, value, t, initializeOnly = False):#creates a global variable with a given value
     if validTypeSingle(t):
@@ -147,7 +139,7 @@ def setGlobalOrLocal(name, value, t, setAsGlobal, initializeOnly = False):#creat
 def setvar(name, value, t):#creates a global variable with a given value checks for the type
     if not t in pythonTypes.keys():
         return False
-    globals()[name] = pythonTypes[t](value) #cast to type
+    createdVariables[name] = pythonTypes[t](value) #cast to type
     return True
 ####parsing functions
 def parseDictGetBothParts(text, separator = ","):#returns (keyText, valueText)
@@ -180,12 +172,12 @@ def parseLenValue(text):#checks if the text is a value or a variable name contai
     text.strip(defaultDelimiter)
     if text[0] == "{" and ";" in text:
         parserTemp = parseDictGetBothParts(text, ";")
-        if parserTemp and parserTemp[0] in globals() and parserTemp[1] in globals():
-            return globals()[parserTemp[0]][len(globals()[parserTemp[1]])]  #var0[len(var1)], this is like increasing the index, but len is used because it increases by one on each call
+        if parserTemp and parserTemp[0] in createdVariables and parserTemp[1] in createdVariables:
+            return createdVariables[parserTemp[0]][len(createdVariables[parserTemp[1]])]  #var0[len(var1)], this is like increasing the index, but len is used because it increases by one on each call
     elif text[0] == "{":
         text = re.sub(regexParseLenVariable, "\\1", text, 0, re.MULTILINE)
-        if text in globals():
-            return globals()[text]
+        if text in createdVariables:
+            return createdVariables[text]
     try: 
         return int(text)
     except ValueError:
@@ -256,7 +248,7 @@ def parseVariable(text, setAsGlobal = False):
         else:   #did not match common container so it is a class
             match = re.search(regexClassVar, text)
             if match:   #format [varName,class,className,paramType, paramType2, ... paramTypen]
-                pass
+                pass#TODO:
     elif text[0] == "{":        #dict
         match = parseDictGetBothParts(text)
         #match = re.search(regexParseDictionary,text)  #match the format {type1,type2}
@@ -337,7 +329,7 @@ def mparseCmd():#receives the input from the command line
     mparse(remainder[0], remainder[1], parserVerbosity)
     
 def getGlobals():
-    return globals()
+    return createdVariables
 
 if __name__ == "__main__":
     mparseCmd()
