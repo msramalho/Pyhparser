@@ -5,9 +5,13 @@ import re, tokenize, io, getopt
 #TODO: include set and frozenset, see tuple implementation in (varName, tuple, len) format
 
 ####prohibited variable names in the parser file
-prohibitedVariableNames = ["argv", "regexSingleVar", "regexSingleVarLen", "regexComment", "regexCommentReplacement", "regexDuplicateWhitespace", "regexDuplicateWhitespace", "regexDuplicateParagraphs", "regexWhitespaceLeftBracket", "regexWhitespaceRightBracket", "regexCommasSpace", "regexCommasSpaceReplacement", "regexRemoveQuoteFromString", "regexConfigurationVariables", "pythonTypes", "separatorString", "parserHead", "parserBody", "parseText", "inputText", "inputPointer", "defaultDelimiter", "lineIndex", "line"]
+prohibitedVariableNames = ["argv", "regexSingleVar", "regexSingleVarLen", "regexComment", "regexCommentReplacement", "regexDuplicateWhitespace", "regexDuplicateParagraphs", "regexWhitespaceLeftBracket", "regexWhitespaceRightBracket", "regexCommasSpace", "regexCommasSpaceReplacement", "regexRemoveSingleQuoteFromString","regexRemoveDoubleQuoteFromString", "regexConfigurationVariables", "pythonTypes", "separatorString", "parserHead", "parserBody", "parseText", "parserVar", "inputText", "defaultDelimiter", "lineIndex", "line", "prohibitedVariableNames","regexSingleVarAnonymous","regexParseLenVariable","regexContainerVariable","regexClassVar"]#should not include parserTemp
 prohibitedVariableNames.sort()
 ####Utils functions
+def assertValidName(name):
+    if name in prohibitedVariableNames:
+        print("ERROR - The variable name %s is restricted for program operations" % name)
+        exit()
 def displayUnavailableVariables():
     print("Unavailable variable names (alphabetically): ")
     print("\n".join(prohibitedVariableNames))
@@ -16,34 +20,22 @@ def displayUsage():
     print("Master Parser Python")
     print("Parse input files (inputFile.txt) into python variables by specifying the layout of the variables (parserLayout.txt)")
     print("\nCommand line arguments:")
-    print("python mparser.py inputeFile.txt parserLayout.txt")
+    print("python mparser.py -flags inputeFile.txt parserLayout.txt")
     print("\nCommand line flags:")
     print("-h --help        display usage instructions")
     print("-v --verbose     increase verbosity")
     print("-u --unavailable list the variable names you cannot use in the parserText")
+    print("\n\n\n-------------------------------------------")
+    print("Module instructions:")
+    print(".Create parser file according to the format")
+    print(".Have your input file name or content handy, code:\n\n")
+    print("    import mparser\n")
+    print('    mparser.mparse("parserFile.txt","inputFile.txt", False) #false means not verbose\n')
+    print("    tempGlobals = mparser.getGlobals() #get the created variables")
+    print("    for key, value in tempGlobals.items(): #iterate the created variables")
+    print("        globals()[key] = value #include the created variables in your file as globals, locals() is also possible\n")
+    print("    #use your variables as you would any other global :)")
 
-####Command line arguments
-parserVerbosity = False
-try:
-    options, remainder = getopt.getopt(argv[1:], 'hvu', ['help', 'verbose', 'unavailable'])
-except getopt.GetoptError as err:
-    print('GETOPT ERROR:', err)
-    displayUsage()
-    exit(1)
-for opt, arg in options:
-    if opt in ('-h', '--help'):
-        displayUsage()
-        exit()
-    if opt in ('-u', '--unavailable'):
-        displayUnavailableVariables()
-        exit()
-    if opt in ('-v', '--verbose'):
-        parserVerbosity = True
-
-####Initial checks
-if len(remainder) != 2:
-    print("Wrong number of arguments\n>>python %s -flags parseText.txt inputFile.txt" % argv[0])
-    exit()
 
 ####Variable declarations
     ####Important constants
@@ -52,6 +44,7 @@ regexSingleVar = r"^\(([^\(\),\s]+),([^\(\),\s]+)\)"                        #for
 regexSingleVarLen = r"^\(([^\(\),\s]+),([^\(\),\s]+),([^\(\),\s]+)\)"       #format (varName,type,len)
 regexParseLenVariable = r"^{(.+)}"                                          #format {varName}
 regexContainerVariable = r"^\[([^\s]+?),([^\s]+?),([^\s]+?),([^\s]+?)\]$"   #format [varName,typeContainer,len,unitType]
+regexClassVar = r"^\[([^\[\],\s]+),(class),([^\(\),\s]+)(,((.*)))+\]$"       #format [varName,class,className,paramType, paramType2, ... paramTypen], at least one param
 regexComment = r"\#.*?$"
 regexCommentReplacement = ""
 regexDuplicateWhitespace= r"([\r\t\f ])+"
@@ -107,7 +100,7 @@ def readFile(filename):#read a file or print an error
     return file.read()
 def separateHeadBody(text):
     global parserHead, parserBody
-    parts = parseText.split(separatorString,1)  #separate head from body
+    parts = text.split(separatorString,1)  #separate head from body
     if len(parts)==2:
         parserHead = parts[0].strip("\n")
         parserBody = parts[1].strip("\n")
@@ -127,7 +120,8 @@ def validTypeSingle(t):
 def validTypeContainer(t):
     return t in ("list", "dict", "tuple", "set", "frozenset")
 
-def setGlobal(name, value, t, initializeOnly):#creates a global variable with a given value
+def setGlobal(name, value, t, initializeOnly = False):#creates a global variable with a given value
+    assertValidName(name)
     if validTypeSingle(t):
         globals()[name] = pythonTypes[t](value) #cast to type
     elif validTypeContainer(t):
@@ -137,7 +131,7 @@ def setGlobal(name, value, t, initializeOnly):#creates a global variable with a 
             globals()[name] = value
     return globals()[name]
 
-def setLocal(name, value, t, initializeOnly):#creates a global variable with a given value
+def setLocal(name, value, t, initializeOnly = False):#creates a global variable with a given value
     if validTypeSingle(t):
         locals()[name] = pythonTypes[t](value) #cast to type
     elif validTypeContainer(t):
@@ -146,7 +140,7 @@ def setLocal(name, value, t, initializeOnly):#creates a global variable with a g
         else:
             locals()[name] = value
     return locals()[name]
-def setGlobalOrLocal(name, value, t, setAsGlobal, initializeOnly):#creates a global variable with a given value
+def setGlobalOrLocal(name, value, t, setAsGlobal, initializeOnly = False):#creates a global variable with a given value
     if setAsGlobal:
         return setGlobal(name, value, t, initializeOnly)
     return setLocal(name, value, t, initializeOnly)
@@ -156,7 +150,7 @@ def setvar(name, value, t):#creates a global variable with a given value checks 
     globals()[name] = pythonTypes[t](value) #cast to type
     return True
 ####parsing functions
-def parseDictGetBothParts(text, separator):#returns (keyText, valueText)
+def parseDictGetBothParts(text, separator = ","):#returns (keyText, valueText)
     openBrackets = 0
     i = 0
     result=()
@@ -187,7 +181,7 @@ def parseLenValue(text):#checks if the text is a value or a variable name contai
     if text[0] == "{" and ";" in text:
         parserTemp = parseDictGetBothParts(text, ";")
         if parserTemp and parserTemp[0] in globals() and parserTemp[1] in globals():
-            return globals()[parserTemp[0]][len(globals()[parserTemp[1]])]
+            return globals()[parserTemp[0]][len(globals()[parserTemp[1]])]  #var0[len(var1)], this is like increasing the index, but len is used because it increases by one on each call
     elif text[0] == "{":
         text = re.sub(regexParseLenVariable, "\\1", text, 0, re.MULTILINE)
         if text in globals():
@@ -210,25 +204,23 @@ def addElementToContainer(container, element):
         container.update(element)
     return container
 
-def parseVariable(text, setAsGlobal):
+def parseVariable(text, setAsGlobal = False):
     global inputText
     parserVar = ""
     text = text.strip(defaultDelimiter)     #remove side delimeters
-    #print("parsing: %s" % text)
     #if elementar variable create local and return
     if text[0] == "(":      #single var
         match = re.search(regexSingleVarAnonymous,text)  #match the format (type)
         if match and validTypeSingle(match.group(1)):
-            parserVar = setLocal("parserTemp", inputText[0], match.group(1), False)#never global
+            parserVar = setLocal("parserTemp", inputText[0], match.group(1))#never global
             del inputText[0]
         else:
             match = re.search(regexSingleVar,text)  #match the format (type, len)
             if match and match.group(1) == "str":#the names cannot be protected words so this is type, len
                 text = "(parserTemp,%s,%s)" % (match.group(1), match.group(2))
-                print("NEW TEXT %s" % text)
             match = re.search(regexSingleVar,text)  #match the format (varName, type)
             if match and validTypeSingle(match.group(2)):
-                parserVar = setGlobalOrLocal(match.group(1), inputText[0], match.group(2), setAsGlobal, False)
+                parserVar = setGlobal(match.group(1), inputText[0], match.group(2))
                 del inputText[0]
             else:
                 match = re.search(regexSingleVarLen,text)  #match the format (varName, type, len)
@@ -236,7 +228,7 @@ def parseVariable(text, setAsGlobal):
                     length = parseLenValue(match.group(3))
                     checkDoableLen(length, match.group(1))  #exits if this len is not parsable
                     if not match.group(1) in locals():
-                        parserVar = setGlobalOrLocal(match.group(1), inputText[0], "str", setAsGlobal, False) #instantiate the string
+                        parserVar = setGlobalOrLocal(match.group(1), inputText[0], "str", setAsGlobal or match.group(1) != "parserTemp") #instantiate the string, it is set as global as long as the name is not parserTemp
                         del inputText[0]
                     for valIndex in range(length-1):
                         parserVar+= defaultDelimiter + inputText[0]
@@ -250,21 +242,25 @@ def parseVariable(text, setAsGlobal):
             parserVar = setLocal(match.group(1), "", match.group(2), True) #instantiate the local variable
             if setAsGlobal:
                 setGlobal(match.group(1), parserVar, match.group(2), True)
-            parserTemp = parseVariable(match.group(4), False)
+            parserTemp = parseVariable(match.group(4))
             parserVar = addElementToContainer(parserVar, parserTemp)
             for parserIndexList in range(1,length):
                 if setAsGlobal:
-                    setGlobal(match.group(1), parserVar, match.group(2), False)
-                parserTemp = parseVariable(match.group(4), False)
+                    setGlobal(match.group(1), parserVar, match.group(2))
+                parserTemp = parseVariable(match.group(4))
                 parserVar = addElementToContainer(parserVar, parserTemp)
             if setAsGlobal:
-                setGlobal(match.group(1), parserVar, match.group(2), False)
+                setGlobal(match.group(1), parserVar, match.group(2))
+        else:   #did not match common container so it is a class
+            match = re.search(regexClassVar, text)
+            if match:   #format [varName,class,className,paramType, paramType2, ... paramTypen]
+                pass
     elif text[0] == "{":        #dict
-        match = parseDictGetBothParts(text, ",")
+        match = parseDictGetBothParts(text)
         #match = re.search(regexParseDictionary,text)  #match the format {type1,type2}
         if match:                        #instantiate the local variable
-            parserTempKey = parseVariable(match[0], False)
-            parserTempValue = parseVariable(match[1], False)
+            parserTempKey = parseVariable(match[0])
+            parserTempValue = parseVariable(match[1])
             parserVar = {parserTempKey: parserTempValue}
     else:
         print("ERROR - Unable to detect if single or container variable in:\n    %s" % text)
@@ -272,50 +268,71 @@ def parseVariable(text, setAsGlobal):
     #if container create local var to return later
     return parserVar #the local variable created
 
-def printStatus():
-    #print("parserHead\n"+parserHead)
-    #print("\nparserBody\n"+parserBody)
-    print("\n\n")
-    print("n = " + str(n))
-    print("name = " + name)
-    print("inteiros = " + str(inteiros))
-    print("nomes = " + str(nomes))
-    print("numeros = " + str(numeros))
-    print("myDicts = " + str(myDicts))
-    print("myDictsList = " + str(myDictsList))
-    print("myTuple = " + str(myTuple))
-    print("total = " + str(total))
-    print("tamanhos = " + str(tamanhos))
-    print("frases = " + str(frases))
 
 
 ################################################## Main program flow
-parseText = readFile(remainder[0])      #get the text from the parser file
-parseText = cleanText(parseText)        #remove irrelvant chars that affect parsing - aka OCD
-separateHeadBody(parseText)             #fill the head and body variables
-parseConfigurationVariables(parserHead) #get the value of the configuration variables in the head
+def mparseContent(pt, it, verbosity = False):
+    global parserHead, parserBody, inputText
+    parseText = pt
+    parseText = cleanText(parseText)        #remove irrelvant chars that affect parsing - aka OCD
+    separateHeadBody(parseText)             #fill the head and body variables
+    parseConfigurationVariables(parserHead) #get the value of the configuration variables in the head
 
-inputText = readFile(remainder[1])      #get the text from the input file
-inputText = cleanText(inputText)        #remove irrelvant chars that affect parsing - aka OCD - from the input
-inputText = inputTextToList(inputText)  #split the input file by the delimiter into a list
+    inputText = it
+    inputText = cleanText(inputText)        #remove irrelvant chars that affect parsing - aka OCD - from the input
+    inputText = inputTextToList(inputText)  #split the input file by the delimiter into a list
+    for lineIndex, line in enumerate(parserBody.splitlines()):              #iterate body line by line
+        if verbosity:
+            print("Parsing line %d  - %s..." % (lineIndex, line), end='')
+        line = line.strip(defaultDelimiter)
+        parts = line.split(defaultDelimiter)
+        for part in parts:                      #iterate line part by part, separated by the defaultDelimiter
+            if len(inputText) == 0:
+                print("\nERROR - The input file has less variables than the parser file indicated, stopped at instruction:\n       %s" % part)
+                exit()
+            if len(part)>0:
+                parseVariable(part, True)
+        if verbosity:
+            print("Done")
+    if verbosity:
+        if len(inputText)>0:
+            print("\n\nWARNING - there were %d values left to parse check your parsing file for descrepancies!" % len(inputText))
+        elif len(inputText) == 0:
+            print("\n\nSUCCESS - There was a perfect match between the parser and input files")
+        print("Master Parser Done")
+    return len(inputText) == 0
 
-print(inputText)
-for lineIndex, line in enumerate(parserBody.splitlines()):              #iterate body line by line
-    if parserVerbosity:
-        print("Parsing line %d  - %s..." % (lineIndex, line), end='')
-    line = line.strip(defaultDelimiter)
-    parts = line.split(defaultDelimiter)
-    for part in parts:                      #iterate line part by part, separated by the defaultDelimiter
-        if len(inputText) == 0:
-            print("\nWARNING: The input file has less variables than the parser file indicated, stopped at instruction:\n       %s" % part)
+def mparse(parseFileName, imputFileName, verbosity = False):
+    global parserHead, parserBody, inputText
+    parseText = readFile(parseFileName)      #get the text from the parser file
+    inputText = readFile(imputFileName)      #get the text from the input file
+    return mparseContent(parseText, inputText, verbosity)
+
+def mparseCmd():#receives the input from the command line
+    parserVerbosity = False
+    try:
+        options, remainder = getopt.getopt(argv[1:], 'hvu', ['help', 'verbose', 'unavailable'])
+    except getopt.GetoptError as err:
+        print('GETOPT ERROR:', err)
+        displayUsage()
+        exit(1)
+    for opt, arg in options:
+        if opt in ('-h', '--help'):
+            displayUsage()
             exit()
-        if len(part)>0:
-            parseVariable(part, True)
-    if parserVerbosity:
-        print("Done")
-printStatus()
-if parserVerbosity and len(inputText)>0:
-    print("\n\nWARNING - there were %d values left to parse check your parsing file for descrepancies!" % len(inputText))
-elif parserVerbosity and len(inputText) == 0:
-    print("\n\nSUCCESS - There was a perfect match between the parser and input files")
-print("Master Parser Done")
+        if opt in ('-u', '--unavailable'):
+            displayUnavailableVariables()
+            exit()
+        if opt in ('-v', '--verbose'):
+            parserVerbosity = True
+    ####Initial checks
+    if len(remainder) != 2:
+        print("Wrong number of arguments\n>>python %s -flags parseFile.txt inputFile.txt" % argv[0])
+        exit()
+    mparse(remainder[0], remainder[1], parserVerbosity)
+    
+def getGlobals():
+    return globals()
+
+if __name__ == "__main__":
+    mparseCmd()
