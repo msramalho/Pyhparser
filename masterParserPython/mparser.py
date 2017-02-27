@@ -186,11 +186,8 @@ def parseLenValue(text):#checks if the text is a value or a variable name contai
     text.strip(defaultDelimiter)
     if text[0] == "{" and ";" in text:
         parserTemp = parseDictGetBothParts(text, ";")
-        print("DICTDIVIDE: " + str(parserTemp))
         if parserTemp and parserTemp[0] in globals() and parserTemp[1] in globals():
-            print("GO")
-            print(str(globals()[parserTemp[1]][len(globals()[parserTemp[1]])]))
-            return globals()[parserTemp[1]][len(globals()[parserTemp[1]])]
+            return globals()[parserTemp[0]][len(globals()[parserTemp[1]])]
     elif text[0] == "{":
         text = re.sub(regexParseLenVariable, "\\1", text, 0, re.MULTILINE)
         if text in globals():
@@ -251,14 +248,15 @@ def parseVariable(text, setAsGlobal):
             length = parseLenValue(match.group(3))
             checkDoableLen(length, match.group(1))      #exits if this len is not parsable
             parserVar = setLocal(match.group(1), "", match.group(2), True) #instantiate the local variable
+            if setAsGlobal:
+                setGlobal(match.group(1), parserVar, match.group(2), True)
             parserTemp = parseVariable(match.group(4), False)
             parserVar = addElementToContainer(parserVar, parserTemp)
-            
             for parserIndexList in range(1,length):
-                parserTemp = parseVariable(match.group(4), False)
-                parserVar = addElementToContainer(parserVar, parserTemp)
                 if setAsGlobal:
                     setGlobal(match.group(1), parserVar, match.group(2), False)
+                parserTemp = parseVariable(match.group(4), False)
+                parserVar = addElementToContainer(parserVar, parserTemp)
             if setAsGlobal:
                 setGlobal(match.group(1), parserVar, match.group(2), False)
     elif text[0] == "{":        #dict
@@ -316,5 +314,8 @@ for lineIndex, line in enumerate(parserBody.splitlines()):              #iterate
     if parserVerbosity:
         print("Done")
 printStatus()
-if len(inputText)>0:
+if parserVerbosity and len(inputText)>0:
     print("\n\nWARNING - there were %d values left to parse check your parsing file for descrepancies!" % len(inputText))
+elif parserVerbosity and len(inputText) == 0:
+    print("\n\nSUCCESS - There was a perfect match between the parser and input files")
+print("Master Parser Done")
