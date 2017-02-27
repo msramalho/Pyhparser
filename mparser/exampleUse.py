@@ -36,9 +36,9 @@ def printStatus(): #read exampleParser.txt to check the variable names and examp
 
 mparser.mparse("exampleParser.txt","exampleInput.txt", True, [Complex, ComplexSpecial])    #True means verbose
 
-"""mparser.mparseContent("(anotherVar, int)","2020", True)         #True means verbose
+mparser.mparseContent("(anotherVar, int)","2020", True)         #True means verbose
 if mparser.mparseContent("(anotherVar, int)","2017", False):    #notice the redefinition of anotherVar
-    print("\n\nI choose to be the one saying the variable was appended")"""
+    print("\n\nI choose to be the one saying the variable was appended")
 
 #the variables are ready but are not accessible in this file's global scope. 
 #to achieve this simple do:
