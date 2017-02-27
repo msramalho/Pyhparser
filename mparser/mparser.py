@@ -5,7 +5,7 @@ import re, tokenize, io, getopt
 #TODO: include set and frozenset, see tuple implementation in (varName, tuple, len) format
 
 ####prohibited variable names in the parser file
-prohibitedVariableNames = ["argv", "regexSingleVar", "regexSingleVarLen", "regexComment", "regexCommentReplacement", "regexDuplicateWhitespace", "regexDuplicateParagraphs", "regexWhitespaceLeftBracket", "regexWhitespaceRightBracket", "regexCommasSpace", "regexCommasSpaceReplacement", "regexRemoveSingleQuoteFromString","regexRemoveDoubleQuoteFromString", "regexConfigurationVariables", "pythonTypes", "separatorString", "parserHead", "parserBody", "parseText", "parserVar", "inputText", "defaultDelimiter", "lineIndex", "line", "prohibitedVariableNames","regexSingleVarAnonymous","regexParseLenVariable","regexContainerVariable","regexClassVar"]#should not include parserTemp
+prohibitedVariableNames = ["argv", "regexSingleVar", "regexSingleVarLen", "regexComment", "regexCommentReplacement", "regexDuplicateWhitespace", "regexDuplicateParagraphs", "regexWhitespaceLeftBracket", "regexWhitespaceRightBracket", "regexCommasSpace", "regexCommasSpaceReplacement", "regexRemoveSingleQuoteFromString","regexRemoveDoubleQuoteFromString", "regexConfigurationVariables", "pythonTypes", "separatorString", "parserHead", "parserBody", "parseText", "parserVar", "inputText", "defaultDelimiter", "lineIndex", "line", "prohibitedVariableNames","regexSingleVarAnonymous","regexParseLenVariable","regexContainerVariable","regexClassVar","name"]#should not include parserTemp
 prohibitedVariableNames.sort()
 ####Utils functions
 def assertValidName(name):
@@ -95,8 +95,8 @@ def readFile(filename):#read a file or print an error
     try:
         file = open(filename)
     except IOError:
-        print("Unable to open file %s" % filename)
-        return ""
+        print("ERROR - Unable to open file %s" % filename)
+        exit()
     return file.read()
 def separateHeadBody(text):
     global parserHead, parserBody
@@ -228,11 +228,13 @@ def parseVariable(text, setAsGlobal = False):
                     length = parseLenValue(match.group(3))
                     checkDoableLen(length, match.group(1))  #exits if this len is not parsable
                     if not match.group(1) in locals():
-                        parserVar = setGlobalOrLocal(match.group(1), inputText[0], "str", setAsGlobal or match.group(1) != "parserTemp") #instantiate the string, it is set as global as long as the name is not parserTemp
+                        parserVar = setLocal(match.group(1), inputText[0], "str") #instantiate the string, it is set as global as long as the name is not parserTemp
                         del inputText[0]
                     for valIndex in range(length-1):
                         parserVar+= defaultDelimiter + inputText[0]
                         del inputText[0]
+                    if setAsGlobal or match.group(1) != "parserTemp":
+                        setGlobal(match.group(1), parserVar, "str")
     elif text[0] == "[":    #container var
         match = re.search(regexContainerVariable,text)  #match the format [varName, typeContainer, length, unitType]
         if match and validTypeContainer(match.group(2)):
