@@ -23,3 +23,7 @@ this string has five words
 2 only two
 6 what a big old string list
 8 this sentence is the biggest of them all
+
+10.23 55
+3.141592653 70 1300     muitoBom
+3.141592653 70 4        string com quatro palavras

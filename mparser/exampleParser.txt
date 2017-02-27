@@ -22,4 +22,9 @@
 (countLists, int)
 [mySentences, list, {countLists}, {(myInt, int),(str, {myInt})}] #myInt is created as a global variable and is updated every time
 
+#classes
+[complexNumber, class, Complex, {realpart, (float)}, {imagpart, (int)}]
+[complexNumber2, class, ComplexSpecial, {realpart, (float)}, {imagpart, (int)}, {special, {(int), (str)}}]
+[complexNumber2, class, ComplexSpecial, {realpart, (float)}, {imagpart, (int)}, {special, {(myInt, int), (str, {myInt})}}]
+
 
