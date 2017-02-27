@@ -1,7 +1,3 @@
-#tests files
-input.txt
-exampleParser.txt
-
 # Compiled python modules.
 *.pyc
 
