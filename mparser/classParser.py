@@ -10,4 +10,4 @@ class classParser:#stores and manages a list of the classes used by the parser, 
                 return c
         return None
     def initClass(self, className, parameters):#dict
-        return self.getClass(className)(**parameters)
+        return self.getClass(className)(**parameters) if self.hasClass(className) else False

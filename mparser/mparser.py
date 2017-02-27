@@ -254,7 +254,8 @@ def parseVariable(text, setAsGlobal = False):
             match = re.search(regexClassVar, text)
             if match:   #format [varName,class,className,n*{param:paramType}]
                 if not availableClasses.hasClass(match.group(3)):
-                    print("ERROR - the specified class (%s) was not specified in the last argument of the mparser or mparserContent functions in:\n   %s" % (match.group(3), text))
+                    print("\nERROR - the specified class (%s) was not specified in the last argument of the mparser or mparserContent functions in:\n   %s" % (match.group(3), text))
+                    exit()
                 classParamsText = match.group(4)
                 classParams = dict()    #this will contain a dict of {paramName : value}
                 while len(classParamsText)>0:
