@@ -1,0 +1,25 @@
+{defaultDelimiter,' ', str}               #this is a comment ####
+
+#you can have as many whitespaces as you want
+
+.body       #this separates the configuration functions from the rest, if you have no configurations to specify this line is unnecessary
+
+
+
+(n, int) (name, str, {n})
+[myInts, list, {n}, (int)]
+[Names, list, {n}, (str, 2)]
+[Numbers, list, {n}, [temp, list, {n}, (int)]] #the temp varName is required but this will be considered a local variable so you can name it whatever you want
+[myDicts, dict, 2, {(int), (str)}]
+[myDictsList, list, 2, {(int), (str)}]
+[myTuple, tuple, 5, (str)]
+
+(total, int)
+[sizesList, list, {total}, (int)]
+[sentences, list, {total}, (str, {sizesList;sentences})]
+
+#mais testes com tamanho dinâmico
+(countLists, int)
+[mySentences, list, {countLists}, {(myInt, int),(str, {myInt})}] #myInt is created as a global variable and is updated every time
+
+
