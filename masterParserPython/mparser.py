@@ -186,7 +186,10 @@ def parseLenValue(text):#checks if the text is a value or a variable name contai
     text.strip(defaultDelimiter)
     if text[0] == "{":
         text = re.sub(regexParseLenVariable, "\\1", text, 0, re.MULTILINE)
-        return globals()[text]
+        if text in globals():
+            return globals()[text]
+        print("ERROR - the variable name you specified for the length {%s} does not exist at this point" % text)
+        exit()
     return int(text)
 def checkDoableLen(length, output):
     if length > len(inputText):#the user is asking for more than available
@@ -261,6 +264,9 @@ def printStatus():
     print("myDicts = " + str(myDicts))
     print("myDictsList = " + str(myDictsList))
     print("myTuple = " + str(myTuple))
+    print("total = " + str(total))
+    print("tamanhos = " + str(tamanhos))
+    print("frases = " + str(frases))
 
 
 ################################################## Main program flow
@@ -280,11 +286,14 @@ for lineIndex, line in enumerate(parserBody.splitlines()):              #iterate
     line = line.strip(defaultDelimiter)
     parts = line.split(defaultDelimiter)
     for part in parts:                      #iterate line part by part, separated by the defaultDelimiter
-        print(part)
         if len(inputText) == 0:
             print("\nWARNING: The input file has less variables than the parser file indicated, stopped at instruction:\n       %s" % part)
             exit()
         if len(part)>0:
             parseVariable(part, True)
-
+    
+    if parserVerbosity:
+        print("Done")
 printStatus()
+if len(inputText)>0:
+    print("\n\nWARNING - there were %d values left to parse check your parsing file for descrepancies!" % len(inputText))
