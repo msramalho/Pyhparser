@@ -281,9 +281,12 @@ def mparseContent(pt, it, verbosity = False):
     inputText = it
     inputText = cleanText(inputText)        #remove irrelvant chars that affect parsing - aka OCD - from the input
     inputText = inputTextToList(inputText)  #split the input file by the delimiter into a list
+
+    if verbosity:
+        linePrint = "Parsing line %2d  - %"+str(len(max(parserBody.splitlines(), key=len)))+"s...   "
     for lineIndex, line in enumerate(parserBody.splitlines()):              #iterate body line by line
         if verbosity:
-            print("Parsing line %d  - %s..." % (lineIndex, line), end='')
+            print(linePrint % (lineIndex, line), end='')
         line = line.strip(defaultDelimiter)
         parts = line.split(defaultDelimiter)
         for part in parts:                      #iterate line part by part, separated by the defaultDelimiter
