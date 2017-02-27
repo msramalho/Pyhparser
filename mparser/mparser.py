@@ -1,7 +1,6 @@
-
 from sys import argv
 import re, tokenize, io, getopt
-
+from classParser import *
 #TODO: include set and frozenset, see tuple implementation in (varName, tuple, len) format
 
 def displayUnavailableVariables():
@@ -11,14 +10,14 @@ def displayUnavailableVariables():
 def displayUsage():
     print("Master Parser Python")
     print("Parse input files (inputFile.txt) into python variables by specifying the layout of the variables (parserLayout.txt)")
-    print("\nCommand line arguments:")
+    print("\nCommand line arguments (does not parse classes):")
     print("python mparser.py -flags inputeFile.txt parserLayout.txt")
     print("\nCommand line flags:")
     print("-h --help        display usage instructions")
     print("-v --verbose     increase verbosity")
     print("-u --unavailable list the variable names you cannot use in the parserText")
     print("\n\n\n-------------------------------------------")
-    print("Module instructions:")
+    print("Module instructions (parses classes):")
     print(".Create parser file according to the format")
     print(".Have your input file name or content handy, code:\n\n")
     print("    import mparser\n")
@@ -30,14 +29,15 @@ def displayUsage():
 
 
 ####Variable declarations
-createdVariables = dict()
-    ####Important constants
+createdVariables = dict()           #contains all the variables parsed
+availableClasses = None    #an instance of classParser that holds the available classes and is able to instantiate them
+######Important constants
 regexSingleVarAnonymous = r"^\(([^\(\),\s]+)\)"                             #format (type)
 regexSingleVar = r"^\(([^\(\),\s]+),([^\(\),\s]+)\)"                        #format (varName,type)
 regexSingleVarLen = r"^\(([^\(\),\s]+),([^\(\),\s]+),([^\(\),\s]+)\)"       #format (varName,type,len)
 regexParseLenVariable = r"^{(.+)}"                                          #format {varName}
 regexContainerVariable = r"^\[([^\s]+?),([^\s]+?),([^\s]+?),([^\s]+?)\]$"   #format [varName,typeContainer,len,unitType]
-regexClassVar = r"^\[([^\[\],\s]+),(class),([^\(\),\s]+)(,((.*)))+\]$"       #format [varName,class,className,paramType, paramType2, ... paramTypen], at least one param
+regexClassVar = r"^\[([^\[\],\s]+),(class),([^\(\),\s]+),(.+)\]$"       #format [varName,class,className,n*{param:paramType}], at least one param
 regexComment = r"\#.*?$"
 regexCommentReplacement = ""
 regexDuplicateWhitespace= r"([\r\t\f ])+"
@@ -55,10 +55,9 @@ pythonTypes = {'int': int, 'float': float, 'complex':complex, 'bool': bool, 'str
 separatorString = ".body"
 parserHead=""
 parserBody=""
-parseText=""
 inputText=""
 
-####configuration variables
+######configuration variables
 defaultDelimiter = ' '
 
 
@@ -145,14 +144,20 @@ def setvar(name, value, t):#creates a global variable with a given value checks 
 def parseDictGetBothParts(text, separator = ","):#returns (keyText, valueText)
     openBrackets = 0
     i = 0
-    result=()
+    middle = 0
+    result=[]
     while i < len(text):
         if text[i] in ("{", "(", "["):
             openBrackets+=1
         elif text[i] in ("}", ")", "]"):
             openBrackets-=1
         elif text[i] == separator and openBrackets == 1:
-            return [text[1:i],text[i+1:-1]]
+            middle = i
+            result.append(text[1:i])
+        if len(result) == 1 and openBrackets == 0:
+            result.append(text[middle+1:i])
+            result.append(text[i+2:])
+            return result
         i+=1
     return False
 def parseConfigurationVariables(text):
@@ -181,7 +186,7 @@ def parseLenValue(text):#checks if the text is a value or a variable name contai
     try: 
         return int(text)
     except ValueError:
-        print("ERROR - the variable name you specified for the length {%s} does not exist at this point" % text)
+        print("ERROR - the variable name you specified for the length {%s} does not exist at this point or is not valid" % text)
         exit()
 def checkDoableLen(length, output):
     if length > len(inputText):#the user is asking for more than available
@@ -245,10 +250,18 @@ def parseVariable(text, setAsGlobal = False):
                 parserVar = addElementToContainer(parserVar, parserTemp)
             if setAsGlobal:
                 setGlobal(match.group(1), parserVar, match.group(2))
-        else:   #did not match common container so it is a class
+        else:   #did not match common container so it is a CLASS
             match = re.search(regexClassVar, text)
-            if match:   #format [varName,class,className,paramType, paramType2, ... paramTypen]
-                pass#TODO:
+            if match:   #format [varName,class,className,n*{param:paramType}]
+                if not availableClasses.hasClass(match.group(3)):
+                    print("ERROR - the specified class (%s) was not specified in the last argument of the mparser or mparserContent functions in:\n   %s" % (match.group(3), text))
+                classParamsText = match.group(4)
+                classParams = dict()    #this will contain a dict of {paramName : value}
+                while len(classParamsText)>0:
+                    splitted = parseDictGetBothParts(classParamsText)
+                    classParams[splitted[0]] = parseVariable(splitted[1])
+                    classParamsText = splitted[2]
+                createdVariables[match.group(1)] = availableClasses.initClass(match.group(3),classParams)
     elif text[0] == "{":        #dict
         match = parseDictGetBothParts(text)
         #match = re.search(regexParseDictionary,text)  #match the format {type1,type2}
@@ -265,9 +278,9 @@ def parseVariable(text, setAsGlobal = False):
 
 
 ################################################## Main program flow
-def mparseContent(pt, it, verbosity = False):
-    global parserHead, parserBody, inputText
-    parseText = pt
+def mparseContent(parseText, it, verbosity = False, classes = []):
+    global parserHead, parserBody, inputText, availableClasses
+    availableClasses = classParser(classes)
     parseText = cleanText(parseText)        #remove irrelvant chars that affect parsing - aka OCD
     separateHeadBody(parseText)             #fill the head and body variables
     parseConfigurationVariables(parserHead) #get the value of the configuration variables in the head
@@ -299,11 +312,11 @@ def mparseContent(pt, it, verbosity = False):
         print("Master Parser Done")
     return len(inputText) == 0
 
-def mparse(parseFileName, imputFileName, verbosity = False):
+def mparse(parseFileName, imputFileName, verbosity = False, classes = []):
     global parserHead, parserBody, inputText
     parseText = readFile(parseFileName)      #get the text from the parser file
     inputText = readFile(imputFileName)      #get the text from the input file
-    return mparseContent(parseText, inputText, verbosity)
+    return mparseContent(parseText, inputText, verbosity, classes)
 
 def mparseCmd():#receives the input from the command line
     parserVerbosity = False
