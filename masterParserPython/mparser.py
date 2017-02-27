@@ -47,11 +47,11 @@ if len(remainder) != 2:
 
 ####Variable declarations
     ####Important constants
-regexSingleVar = r"^\(([^\(\),\s]+),([^\(\),\s]+)\)"                     #format (varName,type)
-regexSingleVarLen = r"^\(([^\(\),\s]+),([^\(\),\s]+),([^\(\),\s]+)\)"    #format (varName,type,len)
-regexParseLenVariable = r"^{(.+)}"                                       #format {varName}
-regexContainerVariable = r"^\[([^\s]+?),([^\s]+?),([^\s]+?),([^\s]+?)\]$"#format [varName,typeContainer,len,unitType]
-regexParseDictionary = r"^{([^\s]+?),([^\s]+?)}"
+regexSingleVarAnonymous = r"^\(([^\(\),\s]+)\)"                             #format (type)
+regexSingleVar = r"^\(([^\(\),\s]+),([^\(\),\s]+)\)"                        #format (varName,type)
+regexSingleVarLen = r"^\(([^\(\),\s]+),([^\(\),\s]+),([^\(\),\s]+)\)"       #format (varName,type,len)
+regexParseLenVariable = r"^{(.+)}"                                          #format {varName}
+regexContainerVariable = r"^\[([^\s]+?),([^\s]+?),([^\s]+?),([^\s]+?)\]$"   #format [varName,typeContainer,len,unitType]
 regexComment = r"\#.*?$"
 regexCommentReplacement = ""
 regexDuplicateWhitespace= r"([\r\t\f ])+"
@@ -156,7 +156,7 @@ def setvar(name, value, t):#creates a global variable with a given value checks 
     globals()[name] = pythonTypes[t](value) #cast to type
     return True
 ####parsing functions
-def parseDictGetBothParts(text):#returns (keyText, valueText)
+def parseDictGetBothParts(text, separator):#returns (keyText, valueText)
     openBrackets = 0
     i = 0
     result=()
@@ -165,8 +165,8 @@ def parseDictGetBothParts(text):#returns (keyText, valueText)
             openBrackets+=1
         elif text[i] in ("}", ")", "]"):
             openBrackets-=1
-        elif text[i] == "," and openBrackets == 0:
-            return [text[1:i-1],text[i+1:-1]]
+        elif text[i] == separator and openBrackets == 1:
+            return [text[1:i],text[i+1:-1]]
         i+=1
     return False
 def parseConfigurationVariables(text):
@@ -184,13 +184,22 @@ def parseConfigurationVariables(text):
 
 def parseLenValue(text):#checks if the text is a value or a variable name containing the size in the format {varName}
     text.strip(defaultDelimiter)
-    if text[0] == "{":
+    if text[0] == "{" and ";" in text:
+        parserTemp = parseDictGetBothParts(text, ";")
+        print("DICTDIVIDE: " + str(parserTemp))
+        if parserTemp and parserTemp[0] in globals() and parserTemp[1] in globals():
+            print("GO")
+            print(str(globals()[parserTemp[1]][len(globals()[parserTemp[1]])]))
+            return globals()[parserTemp[1]][len(globals()[parserTemp[1]])]
+    elif text[0] == "{":
         text = re.sub(regexParseLenVariable, "\\1", text, 0, re.MULTILINE)
         if text in globals():
             return globals()[text]
+    try: 
+        return int(text)
+    except ValueError:
         print("ERROR - the variable name you specified for the length {%s} does not exist at this point" % text)
         exit()
-    return int(text)
 def checkDoableLen(length, output):
     if length > len(inputText):#the user is asking for more than available
         print("ERROR - Failed to input variable (WRONG LENGTH SPECIFIED): name: %s, length: %d" % (output, length))
@@ -211,36 +220,49 @@ def parseVariable(text, setAsGlobal):
     #print("parsing: %s" % text)
     #if elementar variable create local and return
     if text[0] == "(":      #single var
-        match = re.search(regexSingleVar,text)  #match the format (varName, type)
-        if match and validTypeSingle(match.group(2)):
-            parserVar = setGlobalOrLocal(match.group(1), inputText[0], match.group(2), setAsGlobal, False)
+        match = re.search(regexSingleVarAnonymous,text)  #match the format (type)
+        if match and validTypeSingle(match.group(1)):
+            parserVar = setLocal("parserTemp", inputText[0], match.group(1), False)#never global
             del inputText[0]
         else:
-            match = re.search(regexSingleVarLen,text)  #match the format (varName, type, len)
-            if match and match.group(2) == "str": 
-                length = parseLenValue(match.group(3))
-                checkDoableLen(length, match.group(1))  #exits if this len is not parsable
-                if not match.group(1) in locals():
-                    parserVar = setGlobalOrLocal(match.group(1), inputText[0], "str", setAsGlobal, False) #instantiate the string
-                    del inputText[0]
-                for valIndex in range(length-1):
-                    parserVar+= defaultDelimiter + inputText[0]
-                    del inputText[0]
+            match = re.search(regexSingleVar,text)  #match the format (type, len)
+            if match and match.group(1) == "str":#the names cannot be protected words so this is type, len
+                text = "(parserTemp,%s,%s)" % (match.group(1), match.group(2))
+                print("NEW TEXT %s" % text)
+            match = re.search(regexSingleVar,text)  #match the format (varName, type)
+            if match and validTypeSingle(match.group(2)):
+                parserVar = setGlobalOrLocal(match.group(1), inputText[0], match.group(2), setAsGlobal, False)
+                del inputText[0]
+            else:
+                match = re.search(regexSingleVarLen,text)  #match the format (varName, type, len)
+                if match and match.group(2) == "str": 
+                    length = parseLenValue(match.group(3))
+                    checkDoableLen(length, match.group(1))  #exits if this len is not parsable
+                    if not match.group(1) in locals():
+                        parserVar = setGlobalOrLocal(match.group(1), inputText[0], "str", setAsGlobal, False) #instantiate the string
+                        del inputText[0]
+                    for valIndex in range(length-1):
+                        parserVar+= defaultDelimiter + inputText[0]
+                        del inputText[0]
     elif text[0] == "[":    #container var
         match = re.search(regexContainerVariable,text)  #match the format [varName, typeContainer, length, unitType]
         if match and validTypeContainer(match.group(2)):
+            parserIndexList = 0
             length = parseLenValue(match.group(3))
             checkDoableLen(length, match.group(1))      #exits if this len is not parsable
             parserVar = setLocal(match.group(1), "", match.group(2), True) #instantiate the local variable
             parserTemp = parseVariable(match.group(4), False)
             parserVar = addElementToContainer(parserVar, parserTemp)
-            for valIndex in range(length-1):
+            
+            for parserIndexList in range(1,length):
                 parserTemp = parseVariable(match.group(4), False)
                 parserVar = addElementToContainer(parserVar, parserTemp)
+                if setAsGlobal:
+                    setGlobal(match.group(1), parserVar, match.group(2), False)
             if setAsGlobal:
                 setGlobal(match.group(1), parserVar, match.group(2), False)
     elif text[0] == "{":        #dict
-        match = parseDictGetBothParts(text)
+        match = parseDictGetBothParts(text, ",")
         #match = re.search(regexParseDictionary,text)  #match the format {type1,type2}
         if match:                        #instantiate the local variable
             parserTempKey = parseVariable(match[0], False)
@@ -282,7 +304,7 @@ inputText = inputTextToList(inputText)  #split the input file by the delimiter i
 print(inputText)
 for lineIndex, line in enumerate(parserBody.splitlines()):              #iterate body line by line
     if parserVerbosity:
-        print("-----------------------Parsing line %d  - %s" % (lineIndex, line))
+        print("Parsing line %d  - %s..." % (lineIndex, line), end='')
     line = line.strip(defaultDelimiter)
     parts = line.split(defaultDelimiter)
     for part in parts:                      #iterate line part by part, separated by the defaultDelimiter
@@ -291,7 +313,6 @@ for lineIndex, line in enumerate(parserBody.splitlines()):              #iterate
             exit()
         if len(part)>0:
             parseVariable(part, True)
-    
     if parserVerbosity:
         print("Done")
 printStatus()
