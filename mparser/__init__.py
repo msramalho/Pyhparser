@@ -1,3 +1,0 @@
-import mparser
-
-mparser.displayUsage()
