@@ -69,7 +69,7 @@ for key, value in tempGlobals.items():
 | list of 3 ints (see `x` above) | `[myInts2, list, {x}, (int)]`  | 10 11 99  | myInts2 = [10,11,99]|
 | dict of 2 elements | `[myDict, dict, 2, {(int), (string)}]`  | 10 blue 20 green  | s = {{10:"blue"},{20:"green"}}|
 | list of 2 different sized strings* | `[sizes, list, 2, (int)] [myStrings, list, 2, (str, {sizes;myStrings})]`  | 1 3  lorem ipsum dolor sit | sizes = [1,3]; myStrings = ["lorem", "ipsum dolor sit"]|
-| class instance of MyClass | `[mc, class, MyClass, {x:(int)},{y:(str)}] [myStrings, list, 2, (str, {sizes;myStrings})]`  | 10 Dez | mc = MyClass(x:10,y:'Dez')|
+| class instance of MyClass | `[mc, class, MyClass, {x:(int)},{y:(str)}]`  | 10 Dez | mc = MyClass(x:10,y:'Dez')|
 
 *the size of each string in the myStrings list is in the value of the corresponding index of the sizes list
 
