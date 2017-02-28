@@ -14,24 +14,9 @@ class ComplexSpecial:
     def __str__(self):
          return ("%s Is the special oF %di + %d" % (self.special, self.realpart, self.imagpart))
 
-def printStatus(): #read exampleParser.txt to check the variable names and exampleInput.txt for their values
-    print("\n\n")
-    print("n = " + str(n))
-    print("Name = " + str(Name))
-    print("myInts = " + str(myInts))
-    print("Names = " + str(Names))
-    print("Numbers = " + str(Numbers))
-    print("myDicts = " + str(myDicts))
-    print("myDictsList = " + str(myDictsList))
-    print("myTuple = " + str(myTuple))
-    print("total = " + str(total))
-    print("sizesList = " + str(sizesList))
-    print("sentences = " + str(sentences))
-    print("countLists = " + str(countLists))
-    print("mySentences = " + str(mySentences))
-    print("complexNumber = " + str(complexNumber))
-    print("complexNumber2 = " + str(complexNumber2))
-    print("anotherVar = " + str(anotherVar))
+def printStatus(myVars):
+    for key, value in myVars.items():
+        print("%20s:  %s" % (key, value))
     
 
 mparser.mparse("ex_01_parser.txt","ex_01_input.txt", True, [Complex, ComplexSpecial])    #True means verbose
@@ -48,4 +33,4 @@ for key, value in tempGlobals.items():
 
 
 #to display our results
-printStatus()
+printStatus(tempGlobals)
