@@ -34,7 +34,7 @@ def printStatus(): #read exampleParser.txt to check the variable names and examp
     print("anotherVar = " + str(anotherVar))
     
 
-mparser.mparse("exampleParser.txt","exampleInput.txt", True, [Complex, ComplexSpecial])    #True means verbose
+mparser.mparse("ex_01_parser.txt","ex_01_input.txt", True, [Complex, ComplexSpecial])    #True means verbose
 
 mparser.mparseContent("(anotherVar, int)","2020", True)         #True means verbose
 if mparser.mparseContent("(anotherVar, int)","2017", False):    #notice the redefinition of anotherVar
