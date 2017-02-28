@@ -1,0 +1,20 @@
+(nVideos, int)(nEndpoints, int) (nRequests, int) (nCaches, int) (cacheSize, int)
+            #notice there should be a space between '(nVideos, int)' and '(nEndpoints, int)', this was fixed automatically
+
+[videos, list, {nVideos}, (int)]
+[endpoints, list, {nEndpoints},
+    [temp, class, Endpoint,                             #class Endpoint
+        {datacenterLatency:(int)},                          #datacenterLatency
+        {countCaches:(tempCount, int)},                     #countCaches
+        {caches:                                            #list of caches {int, int}
+            [temp, list, {tempCount},{(int),(int)}]
+        }
+    ]
+]
+[requests, list, {nRequests},
+    [temp, class, Request,                              #class Request
+        {videoId:       (int)},                             #videoId
+        {endpointId:    (int)},                             #endpointId
+        {countRequests: (int)}                              #countRequests
+    ]
+]
