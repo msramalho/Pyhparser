@@ -1,11 +1,12 @@
 # Master Parser Python
-##### Description
+## Description
 Avoid wasting time parsing input files in **hackatons**. 
 **mparser** (for short) parses input files (_inputFile.txt_) into python variables by specifying the layout of the variables (_parserFile.txt_):
+
 | Parser File  | Input File | Result |
 |:------------:|:----------:|:----------:|
 | (x, int)     | 10         | x = 10, you can now use x in your script         |
-##### Instructions (no pip or easy_install)
+## Instructions (no pip or easy_install)
 1. Download [mparser.py](https://github.com/msramalho/masterParserPython/blob/master/mparser.py);
 2. Include this file in your working dir;
 3. Do `import mparser`;
@@ -32,8 +33,6 @@ tempGlobals = mparser.getGlobals()
 for key, value in tempGlobals.items():
     globals()[key] = value
 ```
-
----
 
 ## Parsing format
 
