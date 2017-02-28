@@ -1,6 +1,7 @@
-# Master Parser Python
-## Description
-Avoid wasting time parsing input files in **hackatons**. 
+# Master Parser Python 
+### The Hackahton Quintessence
+
+Avoid wasting time parsing input files in **hackathons**. 
 **mparser** (for short) parses input files (_inputFile.txt_) into python variables by specifying the layout of the variables (_parserFile.txt_):
 
 | Parser File  | Input File | Result |
