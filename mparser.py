@@ -289,7 +289,7 @@ def parseVariable(text, setAsGlobal = False):
             parserTempValue = parseVariable(match[1])
             parserVar = {parserTempKey: parserTempValue}
     else:
-        print("ERROR - Unable to detect if single or container variable in:\n    %s" % text)
+        print("\n\nERROR - Unable to detect if single or container variable in:\n%s" % text)
         exit()
     #if container create local var to return later
     return parserVar #the local variable created
