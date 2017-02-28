@@ -71,9 +71,13 @@ for key, value in tempGlobals.items():
 *the size of each string in the myStrings list is in the value of the corresponding index of the sizes list
 
 #### More examples:
-- See the [examples folder](https://github.com/msramalho/masterParserPython/tree/master/examples)
+- See the [examples folder:](https://github.com/msramalho/masterParserPython/tree/master/examples)
+  - [Global example 01](https://github.com/msramalho/masterParserPython/tree/master/examples/ex_01)
+  - [Hashcode 2017 example](https://github.com/msramalho/masterParserPython/tree/master/examples/ex_hashcode2017)
 - Class instance with 4 parameters (one of which is a dict):
-`[peter, class, Person, {age:(int)}, {name:(str)}, {height:(float)}, {keyValue:{(int), (float)}}]`
+``` 
+[peter, class, Person, {age:(int)}, {name:(str)}, {height:(float)}, {keyValue:{(int), (float)}}]
+```
 
 ## Features:
 - [x] Parse essential types: str, int, float, complex, bool
