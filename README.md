@@ -2,37 +2,37 @@
 ### The Hackahton Quintessence
 
 Avoid wasting time parsing input files in **hackathons**. 
-**mparser** (for short) parses input files (_inputFile.txt_) into python variables by specifying the layout of the variables (_parserFile.txt_):
+**mparserpython** parses input files (_inputFile.txt_) into python variables by specifying the layout of the variables (_parserFile.txt_):
 
 | Parser File  | Input File | Result |
 |:------------:|:----------:|:----------:|
 | (x, int)     | 10         | x = 10, you can now use x in your script         |
 ## Instructions (no pip or easy_install)
-1. Download [mparser.py](https://github.com/msramalho/masterParserPython/blob/master/mparser.py);
+1. Download [mparserpython.py](https://github.com/msramalho/masterParserPython/blob/master/mparserpython.py);
 2. Include this file in your working dir;
-3. Do `import mparser`;
+3. Do `import mparserpython`;
 4. Parse your files:
     ```python 
     def mparse(parserFile, inputFile, [verbose], [classesUsed])
 
    #Examples:
-   
-    mparser.mparse("fileParser.txt","fileInput.txt")
-    mparser.mparse("fileParser.txt","fileInput.txt", True)
-    mparser.mparse("fileParser.txt","fileInput.txt", False, [MyClass1, MyClass2])
+
+    mparserpython.mparse("fileParser.txt","fileInput.txt")
+    mparserpython.mparse("fileParser.txt","fileInput.txt", True)
+    mparserpython.mparse("fileParser.txt","fileInput.txt", False, [MyClass1, MyClass2])
      ```
-5. If your content is in strings call the function `mparser.mparseContent` instead of `mparser.mparse` and replace the file names by your text values;
+5. If your content is in strings call the function `mparserpython.mparseContent` instead of `mparserpython.mparse` and replace the file names by your text values;
 6. Now assign the parsed variables to your scope with:
 ```python
-tempGlobals = mparser.getGlobals()
+tempGlobals = mparserpython.getGlobals()
 for key, value in tempGlobals.items():
     globals()[key] = value
 ```
 ### Full code example:
 ```python
 #MyClass must be a class defined somewhere before you call mparse
-mparser.mparse("fileParser.txt","fileInput.txt", False, [MyClass]) #not verbose
-tempGlobals = mparser.getGlobals()
+mparserpython.mparse("fileParser.txt","fileInput.txt", False, [MyClass]) #not verbose
+tempGlobals = mparserpython.getGlobals()
 for key, value in tempGlobals.items():
     globals()[key] = value
 ```
@@ -88,7 +88,9 @@ for key, value in tempGlobals.items():
 - [x] Parse classes
 - [x] Recursive parsing
 
+## TODO
 
+- [ ] Good wiki
 - [ ] Pip and easyinstall packages
 - [ ] Implement set parsing
 - [ ] Implement frozenset parsing

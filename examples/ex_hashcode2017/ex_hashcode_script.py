@@ -1,6 +1,6 @@
 import sys
 sys.path.append('../../')
-import mparser
+import mparserpython
 
 class Endpoint:
     def __init__(self, datacenterLatency, countCaches, caches):
@@ -20,18 +20,18 @@ class Request:
 
 def printStatus(myVars):
     for key, value in myVars.items():
-        if type(value) == list and not mparser.validTypeSingle(str(type(value[0]).__name__)):
+        if type(value) == list and not mparserpython.validTypeSingle(str(type(value[0]).__name__)):
             print("%20s:" % (key))
             for el in value:
                 print("%23s%s" % (" ",str(el)))
         else:
             print("%20s:  %s" % (key, value))
 
-mparser.mparse("ex_hashcode_parser.txt","ex_hashcode_input.txt", True, [Endpoint, Request])    #True means verbose
+mparserpython.mparse("ex_hashcode_parser.txt","ex_hashcode_input.txt", True, [Endpoint, Request])    #True means verbose
 
 #the variables are ready but are not accessible in this file's global scope. 
 #to achieve this simple do:
-tempGlobals = mparser.getGlobals()
+tempGlobals = mparserpython.getGlobals()
 for key, value in tempGlobals.items():
     globals()[key] = value
 

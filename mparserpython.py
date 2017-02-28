@@ -26,7 +26,7 @@ def displayUsage():
     print("Master Parser Python")
     print("Parse input files (inputFile.txt) into python variables by specifying the layout of the variables (parserLayout.txt)")
     print("\nCommand line arguments (does not parse classes):")
-    print("python mparser.py -flags inputeFile.txt parserLayout.txt")
+    print("python mparserpython.py -flags inputeFile.txt parserLayout.txt")
     print("\nCommand line flags:")
     print("-h --help        display usage instructions")
     print("-v --verbose     increase verbosity")
@@ -35,9 +35,9 @@ def displayUsage():
     print("Module instructions (parses classes):")
     print(".Create parser file according to the format")
     print(".Have your input file name or content handy, code:\n\n")
-    print("    import mparser\n")
-    print('    mparser.mparse("parserFile.txt","inputFile.txt", False) #false means not verbose\n')
-    print("    tempGlobals = mparser.getGlobals() #get the created variables")
+    print("    import mparserpython\n")
+    print('    mparserpython.mparse("parserFile.txt","inputFile.txt", False, [MyClass1, MyClass2]) #false means not verbose\n')
+    print("    tempGlobals = mparserpython.getGlobals() #get the created variables")
     print("    for key, value in tempGlobals.items(): #iterate the created variables")
     print("        globals()[key] = value #include the created variables in your file as globals, locals() is also possible\n")
     print("    #use your variables as you would any other global :)")
@@ -283,7 +283,7 @@ def parseVariable(text, setAsGlobal = False):
         match = re.search(regexClassVar, text)
         if match:   #this is a class container #format [varName,class,className,n*{param:paramType}]
             if not availableClasses.hasClass(match.group(3)):
-                print("\nERROR - the specified class (%s) was not specified in the last argument of the mparser or mparserContent functions in:\n   %s" % (match.group(3), text))
+                print("\nERROR - the specified class (%s) was not specified in the last argument of the mparse or mparseContent functions in:\n   %s" % (match.group(3), text))
                 exit()
             classParamsText = match.group(4)
             classParams = dict()    #this will contain a dict of {paramName : value}

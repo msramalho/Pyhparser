@@ -1,6 +1,6 @@
 import sys
 sys.path.append('../../')
-import mparser
+import mparserpython
 
 class Complex:
     def __init__(self, realpart, imagpart):
@@ -21,15 +21,15 @@ def printStatus(myVars):
         print("%20s:  %s" % (key, value))
     
 
-mparser.mparse("ex_01_parser.txt","ex_01_input.txt", True, [Complex, ComplexSpecial])    #True means verbose
+mparserpython.mparse("ex_01_parser.txt","ex_01_input.txt", True, [Complex, ComplexSpecial])    #True means verbose
 
-mparser.mparseContent("(anotherVar, int)","2020", True)         #True means verbose
-if mparser.mparseContent("(anotherVar, int)","2017", False):    #notice the redefinition of anotherVar
+mparserpython.mparseContent("(anotherVar, int)","2020", True)         #True means verbose
+if mparserpython.mparseContent("(anotherVar, int)","2017", False):    #notice the redefinition of anotherVar
     print("\n\nI choose to be the one saying the variable was appended")
 
 #the variables are ready but are not accessible in this file's global scope. 
 #to achieve this simple do:
-tempGlobals = mparser.getGlobals()
+tempGlobals = mparserpython.getGlobals()
 for key, value in tempGlobals.items():
     globals()[key] = value
 
