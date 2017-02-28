@@ -14,7 +14,9 @@ Avoid wasting time parsing input files in **hackathons**.
 4. Parse your files:
     ```python 
     def mparse(parserFile, inputFile, [verbose], [classesUsed])
+
    #Examples:
+   
     mparser.mparse("fileParser.txt","fileInput.txt")
     mparser.mparse("fileParser.txt","fileInput.txt", True)
     mparser.mparse("fileParser.txt","fileInput.txt", False, [MyClass1, MyClass2])
