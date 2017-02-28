@@ -45,7 +45,9 @@ regexDuplicateParagraphs= r"([\v\n])+"
 regexWhitespaceLeftBracket =  r"({)[\r\t\f ]*"
 regexWhitespaceRightBracket =  r"[\r\t\f ]*(})"
 regexCommasSpace = r", "    #podia ser r", *", mas o whitespace removal torna redundante
+regexCollonSpace = r": "    #podia ser r", *", mas o whitespace removal torna redundante
 regexCommasSpaceReplacement = ","
+regexCollonSpaceReplacement = ":"
 regexRemoveSingleQuoteFromString = r"^'(.*)'$"
 regexRemoveDoubleQuoteFromString = r"^\"(.*)\"$"
 regexConfigurationVariables = r"{(.*),(.*),(.*)}"
@@ -72,13 +74,14 @@ def removeRedundantWhitespaces(text):
     text = re.sub(regexWhitespaceLeftBracket, "\\1", text, 0, re.MULTILINE)
     return re.sub(regexWhitespaceRightBracket, "\\1", text, 0, re.MULTILINE)
 
-def removeCommaSpaces(text):
-    return re.sub(regexCommasSpace, regexCommasSpaceReplacement, text, 0, re.MULTILINE)
+def removePunctuationSpaces(text):
+    text = re.sub(regexCommasSpace, regexCommasSpaceReplacement, text, 0, re.MULTILINE)
+    return re.sub(regexCollonSpace, regexCollonSpaceReplacement, text, 0, re.MULTILINE)
 def removeQuotes(text):
     text = re.sub(regexRemoveSingleQuoteFromString, "\\1", text, 0)
     return re.sub(regexRemoveDoubleQuoteFromString, "\\1", text, 0)
 def cleanText(text):
-    return removeCommaSpaces(removeRedundantWhitespaces(removeComments(text)))
+    return removePunctuationSpaces(removeRedundantWhitespaces(removeComments(text)))
 
     
 
@@ -259,7 +262,7 @@ def parseVariable(text, setAsGlobal = False):
                 classParamsText = match.group(4)
                 classParams = dict()    #this will contain a dict of {paramName : value}
                 while len(classParamsText)>0:
-                    splitted = parseDictGetBothParts(classParamsText)
+                    splitted = parseDictGetBothParts(classParamsText, ":")
                     classParams[splitted[0]] = parseVariable(splitted[1])
                     classParamsText = splitted[2]
                 createdVariables[match.group(1)] = availableClasses.initClass(match.group(3),classParams)

@@ -31,7 +31,7 @@ def printStatus(): #read exampleParser.txt to check the variable names and examp
     print("mySentences = " + str(mySentences))
     print("complexNumber = " + str(complexNumber))
     print("complexNumber2 = " + str(complexNumber2))
-    #print("anotherVar = " + str(anotherVar))
+    print("anotherVar = " + str(anotherVar))
     
 
 mparser.mparse("exampleParser.txt","exampleInput.txt", True, [Complex, ComplexSpecial])    #True means verbose
