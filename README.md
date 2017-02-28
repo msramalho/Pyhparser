@@ -8,7 +8,7 @@ Avoid wasting time parsing input files in **hackathons**.
 |:------------:|:----------:|:----------:|
 | (x, int)     | 10         | x = 10, you can now use x in your script         |
 ## Instructions (no pip or easy_install)
-1. Download [mparserpython.py](https://github.com/msramalho/masterParserPython/blob/master/mparserpython.py);
+1. Download [mparserpython.py](https://github.com/msramalho/mparserpython/blob/master/mparserpython.py);
 2. Include this file in your working dir;
 3. Do `import mparserpython`;
 4. Parse your files:
@@ -74,9 +74,9 @@ for key, value in tempGlobals.items():
 *the size of each string in the myStrings list is in the value of the corresponding index of the sizes list
 
 #### More examples:
-- See the [examples folder:](https://github.com/msramalho/masterParserPython/tree/master/examples)
-  - [Global example 01](https://github.com/msramalho/masterParserPython/tree/master/examples/ex_01)
-  - [Hashcode 2017 example](https://github.com/msramalho/masterParserPython/tree/master/examples/ex_hashcode2017)
+- See the [examples folder:](https://github.com/msramalho/mparserpython/tree/master/examples)
+  - [Global example 01](https://github.com/msramalho/mparserpython/tree/master/examples/ex_01)
+  - [Hashcode 2017 example](https://github.com/msramalho/mparserpython/tree/master/examples/ex_hashcode2017)
 - Class instance with 4 parameters (one of which is a dict):
 ``` 
 [peter, class, Person, {age:(int)}, {name:(str)}, {height:(float)}, {keyValue:{(int), (float)}}]
