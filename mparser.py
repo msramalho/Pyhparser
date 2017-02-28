@@ -44,25 +44,23 @@ def displayUsage():
 
 
 ####Variable declarations
-createdVariables = dict()           #contains all the variables parsed
-availableClasses = None    #an instance of classParser that holds the available classes and is able to instantiate them
+createdVariables = dict()       #contains all the variables parsed
+availableClasses = None         #an instance of classParser that holds the available classes and is able to instantiate them
 ######Important constants
 regexSingleVarAnonymous = r"^\(([^\(\),\s]+)\)"                             #format (type)
 regexSingleVar = r"^\(([^\(\),\s]+),([^\(\),\s]+)\)"                        #format (varName,type)
 regexSingleVarLen = r"^\(([^\(\),\s]+),([^\(\),\s]+),([^\(\),\s]+)\)"       #format (varName,type,len)
 regexParseLenVariable = r"^{(.+)}"                                          #format {varName}
 regexContainerVariable = r"^\[([^\s]+?),([^\s]+?),([^\s]+?),([^\s]+?)\]$"   #format [varName,typeContainer,len,unitType]
-regexClassVar = r"^\[([^\[\],\s]+),(class),([^\(\),\s]+),(.+)\]$"       #format [varName,class,className,n*{param:paramType}], at least one param
+regexClassVar = r"^\[([^\[\],\s]+),(class),([^\(\),\s]+),(.+)\]$"           #format [varName,class,className,n*{param:paramType}], at least one param
 regexComment = r"\#.*?$"
 regexCommentReplacement = ""
 regexDuplicateWhitespace= r"([\r\t\f ])+"
 regexDuplicateParagraphs= r"([\v\n])+"
 regexWhitespaceLeftBracket =  r"({)[\r\t\f ]*"
 regexWhitespaceRightBracket =  r"[\r\t\f ]*(})"
-regexCommasSpace = r", "    #podia ser r", *", mas o whitespace removal torna redundante
-regexCollonSpace = r": "    #podia ser r", *", mas o whitespace removal torna redundante
-regexCommasSpaceReplacement = ","
-regexCollonSpaceReplacement = ":"
+regexSpaces = r"([,:{}\[\]]) "       #remove spaces after :,[]{}(), replace by \\1
+regexFixUserMissingSpaces = r"((\))(\())" #adds a space between )( if it is replaced by "\\2 \\3"
 regexRemoveSingleQuoteFromString = r"^'(.*)'$"
 regexRemoveDoubleQuoteFromString = r"^\"(.*)\"$"
 regexConfigurationVariables = r"{(.*),(.*),(.*)}"
@@ -90,8 +88,7 @@ def removeRedundantWhitespaces(text):
     return re.sub(regexWhitespaceRightBracket, "\\1", text, 0, re.MULTILINE)
 
 def removePunctuationSpaces(text):
-    text = re.sub(regexCommasSpace, regexCommasSpaceReplacement, text, 0, re.MULTILINE)
-    return re.sub(regexCollonSpace, regexCollonSpaceReplacement, text, 0, re.MULTILINE)
+    return re.sub(regexSpaces, "\\1", text, 0, re.MULTILINE)
 def removeQuotes(text):
     text = re.sub(regexRemoveSingleQuoteFromString, "\\1", text, 0)
     return re.sub(regexRemoveDoubleQuoteFromString, "\\1", text, 0)
@@ -121,9 +118,26 @@ def inputTextToList(text):
     temp = []
     for line in text.splitlines():
         parts = line.split(defaultDelimiter)
-        for part in parts:  
+        for part in parts:
             temp.append(part)
     return temp
+def parseTextToList(text):
+    i = 0
+    lines = text.splitlines()
+    fullLines = []
+    temp = ""
+    while i < len(lines):
+        if isLineComplete(temp):
+            temp = re.sub(regexFixUserMissingSpaces, "\\2 \\3", temp, 0, re.MULTILINE)
+            fullLines.append(removePunctuationSpaces(removeRedundantWhitespaces(temp)))
+            temp =lines[i]
+        else:
+            temp+=lines[i]
+        if i == len(lines) - 1 and isLineComplete(temp):
+            temp = re.sub(regexFixUserMissingSpaces, "\\2 \\3", temp, 0, re.MULTILINE)
+            fullLines.append(removePunctuationSpaces(removeRedundantWhitespaces(temp)))
+        i+=1
+    return fullLines
 
 def validTypeSingle(t):
     return t in ("int", "str", "bool", "float", "complex")
@@ -159,6 +173,16 @@ def setvar(name, value, t):#creates a global variable with a given value checks 
     createdVariables[name] = pythonTypes[t](value) #cast to type
     return True
 ####parsing functions
+def isLineComplete(line):#true is len > 0 and open parentheses = closed
+    openBrackets = 0
+    i = 0
+    while i < len(line):
+        if line[i] in ("{", "(", "["):
+            openBrackets+=1
+        elif line[i] in ("}", ")", "]"):
+            openBrackets-=1
+        i+=1
+    return openBrackets == 0 and len(line)>0
 def parseDictGetBothParts(text, separator = ","):#returns (keyText, valueText)
     openBrackets = 0
     i = 0
@@ -220,13 +244,15 @@ def addElementToContainer(container, element):
     return container
 
 def parseVariable(text, setAsGlobal = False):
-    global inputText
+    global inputText, createdVariables
+    #print("\n%s = %s"% (text, str(inputText)))
     parserVar = ""
     text = text.strip(defaultDelimiter)     #remove side delimeters
     #if elementar variable create local and return
     if text[0] == "(":      #single var
         match = re.search(regexSingleVarAnonymous,text)  #match the format (type)
         if match and validTypeSingle(match.group(1)):
+            #print("%s->%s = %s" % (text, match.group(1), inputText[0]))
             parserVar = setLocal("parserTemp", inputText[0], match.group(1))#never global
             del inputText[0]
         else:
@@ -242,45 +268,50 @@ def parseVariable(text, setAsGlobal = False):
                 if match and match.group(2) == "str": 
                     length = parseLenValue(match.group(3))
                     checkDoableLen(length, match.group(1))  #exits if this len is not parsable
-                    if not match.group(1) in locals():
-                        parserVar = setLocal(match.group(1), inputText[0], "str") #instantiate the string, it is set as global as long as the name is not parserTemp
-                        del inputText[0]
-                    for valIndex in range(length-1):
-                        parserVar+= defaultDelimiter + inputText[0]
-                        del inputText[0]
+                    if length > 0:
+                        if not match.group(1) in locals():
+                            parserVar = setLocal(match.group(1), inputText[0], "str") #instantiate the string, it is set as global as long as the name is not parserTemp
+                            del inputText[0]
+                        for valIndex in range(length-1):
+                            parserVar+= defaultDelimiter + inputText[0]
+                            del inputText[0]
+                    else: #only creat an empty string
+                         parserVar = setLocal(match.group(1), "", "str")
                     if setAsGlobal or match.group(1) != "parserTemp":
                         setGlobal(match.group(1), parserVar, "str")
     elif text[0] == "[":    #container var
-        match = re.search(regexContainerVariable,text)  #match the format [varName, typeContainer, length, unitType]
-        if match and validTypeContainer(match.group(2)):
-            parserIndexList = 0
-            length = parseLenValue(match.group(3))
-            checkDoableLen(length, match.group(1))      #exits if this len is not parsable
-            parserVar = setLocal(match.group(1), "", match.group(2), True) #instantiate the local variable
-            if setAsGlobal:
-                setGlobal(match.group(1), parserVar, match.group(2), True)
-            parserTemp = parseVariable(match.group(4))
-            parserVar = addElementToContainer(parserVar, parserTemp)
-            for parserIndexList in range(1,length):
+        match = re.search(regexClassVar, text)
+        if match:   #this is a class container #format [varName,class,className,n*{param:paramType}]
+            if not availableClasses.hasClass(match.group(3)):
+                print("\nERROR - the specified class (%s) was not specified in the last argument of the mparser or mparserContent functions in:\n   %s" % (match.group(3), text))
+                exit()
+            classParamsText = match.group(4)
+            classParams = dict()    #this will contain a dict of {paramName : value}
+            while len(classParamsText)>0:
+                splitted = parseDictGetBothParts(classParamsText, ":")
+                classParams[splitted[0]] = parseVariable(splitted[1])
+                classParamsText = splitted[2]
+            parserVar = createdVariables[match.group(1)] = availableClasses.initClass(match.group(3),classParams)
+        else:
+            match = re.search(regexContainerVariable,text)  #format [varName, typeContainer, length, unitType]
+            if match and validTypeContainer(match.group(2)):
+                parserIndexList = 0
+                length = parseLenValue(match.group(3))
+                checkDoableLen(length, match.group(1))      #exits if this len is not parsable
+                parserVar = setLocal(match.group(1), "", match.group(2), True) #instantiate the local variable
+                if length > 0: #something inside the container
+                    if setAsGlobal:
+                        setGlobal(match.group(1), parserVar, match.group(2), True)
+                    parserTemp = parseVariable(match.group(4))
+                    parserVar = addElementToContainer(parserVar, parserTemp)
+                    for parserIndexList in range(1,length):
+                        if setAsGlobal:
+                            setGlobal(match.group(1), parserVar, match.group(2))
+                        parserTemp = parseVariable(match.group(4))
+                        parserVar = addElementToContainer(parserVar, parserTemp)
                 if setAsGlobal:
                     setGlobal(match.group(1), parserVar, match.group(2))
-                parserTemp = parseVariable(match.group(4))
-                parserVar = addElementToContainer(parserVar, parserTemp)
-            if setAsGlobal:
-                setGlobal(match.group(1), parserVar, match.group(2))
-        else:   #did not match common container so it is a CLASS
-            match = re.search(regexClassVar, text)
-            if match:   #format [varName,class,className,n*{param:paramType}]
-                if not availableClasses.hasClass(match.group(3)):
-                    print("\nERROR - the specified class (%s) was not specified in the last argument of the mparser or mparserContent functions in:\n   %s" % (match.group(3), text))
-                    exit()
-                classParamsText = match.group(4)
-                classParams = dict()    #this will contain a dict of {paramName : value}
-                while len(classParamsText)>0:
-                    splitted = parseDictGetBothParts(classParamsText, ":")
-                    classParams[splitted[0]] = parseVariable(splitted[1])
-                    classParamsText = splitted[2]
-                createdVariables[match.group(1)] = availableClasses.initClass(match.group(3),classParams)
+                
     elif text[0] == "{":        #dict
         match = parseDictGetBothParts(text)
         #match = re.search(regexParseDictionary,text)  #match the format {type1,type2}
@@ -300,17 +331,18 @@ def parseVariable(text, setAsGlobal = False):
 def mparseContent(parseText, it, verbosity = False, classes = []):
     global parserHead, parserBody, inputText, availableClasses
     availableClasses = classParser(classes)
-    parseText = cleanText(parseText)        #remove irrelvant chars that affect parsing - aka OCD
-    separateHeadBody(parseText)             #fill the head and body variables
-    parseConfigurationVariables(parserHead) #get the value of the configuration variables in the head
+    parseText = cleanText(parseText)            #remove irrelvant chars that affect parsing - aka OCD
+    separateHeadBody(parseText)                 #fill the head and body variables
+    parseConfigurationVariables(parserHead)     #get the value of the configuration variables in the head
+    parserBody = parseTextToList(parserBody)    #split the input file by the delimiter into a list
 
     inputText = it
     inputText = cleanText(inputText)        #remove irrelvant chars that affect parsing - aka OCD - from the input
     inputText = inputTextToList(inputText)  #split the input file by the delimiter into a list
 
     if verbosity:
-        linePrint = "Parsing line %2d  - %"+str(len(max(parserBody.splitlines(), key=len)))+"s...   "
-    for lineIndex, line in enumerate(parserBody.splitlines()):              #iterate body line by line
+        linePrint = "Parsing line %2d  - %"+str(len(max(parserBody, key=len)))+"s...   "
+    for lineIndex, line in enumerate(parserBody):              #iterate body line by line
         if verbosity:
             print(linePrint % (lineIndex, line), end='')
         line = line.strip(defaultDelimiter)
