@@ -1,17 +1,17 @@
-(nVideos, int)(nEndpoints, int) (nRequests, int) (nCaches, int) (cacheSize, int)
+(nVideos, int)(nEndpoints, int) (nRequests, int) (nCaches, int) (cacheSize, int) #read five integers into variables
             #notice there should be a space between '(nVideos, int)' and '(nEndpoints, int)', this was fixed automatically
 
-[videos, list, {nVideos}, (int)]
-[endpoints, list, {nEndpoints},
+[videos, list, {nVideos}, (int)]                        #list of ints with length equal to nVideos 
+[endpoints, list, {nEndpoints},                         #list of nEndpoints more complex elements (class Endpoint)
     [temp, class, Endpoint,                             #class Endpoint
         {datacenterLatency:(int)},                          #datacenterLatency
         {countCaches:(tempCount, int)},                     #countCaches
-        {caches:                                            #list of caches {int, int}
+        {caches:                                            #list of caches {int, int}, the number of caches is read into tempCount on each iteration
             [temp, list, {tempCount},{(int),(int)}]
         }
     ]
 ]
-[requests, list, {nRequests},
+[requests, list, {nRequests},                           #list of Requests with nRequests items
     [temp, class, Request,                              #class Request
         {videoId:       (int)},                             #videoId
         {endpointId:    (int)},                             #endpointId
