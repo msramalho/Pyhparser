@@ -6,7 +6,7 @@ from parserTools.cleaner import *
 from parserTools.utils import *
 from parserTools.configurationsParser import *
 
-#TODO: include set and frozenset, see tuple implementation in (varName, tuple, len) format
+#TODO: include frozenset
 
 ####Variable declarations
 createdVariables = dict()       #contains all the variables parsed
@@ -19,7 +19,7 @@ regexParseLenVariable = r"^{(.+)}"                                          #for
 regexContainerVariable = r"^\[([^\s]+?),([^\s]+?),([^\s]+?),([^\s]+?)\]$"   #format [varName,typeContainer,len,unitType]
 regexClassVar = r"^\[([^\[\],\s]+),(class),([^\(\),\s]+),(.+)\]$"           #format [varName,class,className,n*{param:paramType}], at least one param
 
-pythonTypes = {'int': int, 'float': float, 'complex':complex, 'bool': bool, 'str': str, 'dict':dict, 'tuple':tuple, 'list':list, 'set':set, 'frozenset':frozenset}
+pythonTypes = {'int': int, 'float': float, 'complex':complex, 'bool': bool, 'str': str, 'dict':dict, 'tuple':tuple, 'list':list, 'set':set}
     
 parserHead=""
 parserBody=""
@@ -33,7 +33,8 @@ configs["defaultDelimiter"] = ' '
     
 
 ####Important functions
-
+def getGlobals():
+    return createdVariables
 def setGlobal(name, value, t, initializeOnly = False):#creates a global variable with a given value
     if validTypeSingle(t):
         createdVariables[name] = pythonTypes[t](value) #cast to type
@@ -57,14 +58,8 @@ def setGlobalOrLocal(name, value, t, setAsGlobal, initializeOnly = False):#creat
     if setAsGlobal:
         return setGlobal(name, value, t, initializeOnly)
     return setLocal(name, value, t, initializeOnly)
-'''def setvar(name, value, t):#creates a global variable with a given value checks for the type
-    if not t in pythonTypes.keys():
-        return False
-    createdVariables[name] = pythonTypes[t](value) #cast to type
-    return True'''
+
 ####parsing functions
-
-
 def parseDictGetBothParts(text, separator = ","):#returns (keyText, valueText)
     openBrackets = 0
     i = 0
@@ -113,6 +108,8 @@ def addElementToContainer(container, element):
         container+=(element,)
     elif type(container) == dict:
         container.update(element)
+    elif type(container) == set:
+        container.add(element)
     return container
 
 def parseVariable(text, setAsGlobal = False):
@@ -242,8 +239,7 @@ def mparse(parseFileName, imputFileName, verbosity = False, classes = []):
     return mparseContent(parseText, inputText, verbosity, classes)
 
     
-def getGlobals():
-    return createdVariables
+
 
 if __name__ == "__main__":
     mparseCmd()
