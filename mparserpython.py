@@ -1,47 +1,12 @@
-from sys import argv
-import re, tokenize, io, getopt
+import re, tokenize, io
 
-class classParser:#stores and manages a list of the classes used by the parser, also creates instances of them
-    def __init__(self, classList):
-        self.classList = classList
-        self.classNames = list(map(lambda c: c.__name__, classList))
-    def hasClass(self, className):
-        return className in self.classNames
-    def getClass(self, className):
-        for c in self.classList:
-            if c.__name__ == className:
-                return c
-        return None
-    def initClass(self, className, parameters):#dict
-        return self.getClass(className)(**parameters) if self.hasClass(className) else False
-
+from parserTools.classParser import *
+from parserTools.commandLine import *
+from parserTools.cleaner import *
+from parserTools.utils import *
+from parserTools.configurationsParser import *
 
 #TODO: include set and frozenset, see tuple implementation in (varName, tuple, len) format
-
-def displayUnavailableVariables():
-    print("Unavailable variable names (alphabetically): ")
-    print("\n".join(prohibitedVariableNames))
-
-def displayUsage():
-    print("Master Parser Python")
-    print("Parse input files (inputFile.txt) into python variables by specifying the layout of the variables (parserLayout.txt)")
-    print("\nCommand line arguments (does not parse classes):")
-    print("python mparserpython.py -flags inputeFile.txt parserLayout.txt")
-    print("\nCommand line flags:")
-    print("-h --help        display usage instructions")
-    print("-v --verbose     increase verbosity")
-    print("-u --unavailable list the variable names you cannot use in the parserText")
-    print("\n\n\n-------------------------------------------")
-    print("Module instructions (parses classes):")
-    print(".Create parser file according to the format")
-    print(".Have your input file name or content handy, code:\n\n")
-    print("    import mparserpython\n")
-    print('    mparserpython.mparse("parserFile.txt","inputFile.txt", False, [MyClass1, MyClass2]) #false means not verbose\n')
-    print("    tempGlobals = mparserpython.getGlobals() #get the created variables")
-    print("    for key, value in tempGlobals.items(): #iterate the created variables")
-    print("        globals()[key] = value #include the created variables in your file as globals, locals() is also possible\n")
-    print("    #use your variables as you would any other global :)")
-
 
 ####Variable declarations
 createdVariables = dict()       #contains all the variables parsed
@@ -53,96 +18,21 @@ regexSingleVarLen = r"^\(([^\(\),\s]+),([^\(\),\s]+),([^\(\),\s]+)\)"       #for
 regexParseLenVariable = r"^{(.+)}"                                          #format {varName}
 regexContainerVariable = r"^\[([^\s]+?),([^\s]+?),([^\s]+?),([^\s]+?)\]$"   #format [varName,typeContainer,len,unitType]
 regexClassVar = r"^\[([^\[\],\s]+),(class),([^\(\),\s]+),(.+)\]$"           #format [varName,class,className,n*{param:paramType}], at least one param
-regexComment = r"\#.*?$"
-regexCommentReplacement = ""
-regexDuplicateWhitespace= r"([\r\t\f ])+"
-regexDuplicateParagraphs= r"([\v\n])+"
-regexWhitespaceLeftBracket =  r"({)[\r\t\f ]*"
-regexWhitespaceRightBracket =  r"[\r\t\f ]*(})"
-regexSpaces = r"([,:{}\[\]]) "       #remove spaces after :,[]{}(), replace by \\1
-regexFixUserMissingSpaces = r"((\))(\())" #adds a space between )( if it is replaced by "\\2 \\3"
-regexRemoveSingleQuoteFromString = r"^'(.*)'$"
-regexRemoveDoubleQuoteFromString = r"^\"(.*)\"$"
-regexConfigurationVariables = r"{(.*),(.*),(.*)}"
 
 pythonTypes = {'int': int, 'float': float, 'complex':complex, 'bool': bool, 'str': str, 'dict':dict, 'tuple':tuple, 'list':list, 'set':set, 'frozenset':frozenset}
     
-separatorString = ".body"
 parserHead=""
 parserBody=""
 inputText=""
 
 ######configuration variables
-defaultDelimiter = ' '
+configs = dict()
+configs["defaultDelimiter"] = ' '
 
-
-####Prepare the input for parsing
-def removeComments(text):#removes #comments from the inputs
-    return re.sub(regexComment, regexCommentReplacement, text, 0, re.MULTILINE)
-
-def removeRedundantWhitespaces(text):
-    text = text.strip()#strip sideways
-    text =  re.sub(regexDuplicateWhitespace, "\\1", text, 0, re.MULTILINE)
-    text =  re.sub(regexDuplicateParagraphs, "\\1", text, 0, re.MULTILINE)
-    text = re.sub(regexWhitespaceLeftBracket, "\\1", text, 0, re.MULTILINE)
-    return re.sub(regexWhitespaceRightBracket, "\\1", text, 0, re.MULTILINE)
-
-def removePunctuationSpaces(text):
-    return re.sub(regexSpaces, "\\1", text, 0, re.MULTILINE)
-def removeQuotes(text):
-    text = re.sub(regexRemoveSingleQuoteFromString, "\\1", text, 0)
-    return re.sub(regexRemoveDoubleQuoteFromString, "\\1", text, 0)
-def cleanText(text):
-    return removePunctuationSpaces(removeRedundantWhitespaces(removeComments(text)))
 
     
 
 ####Important functions
-def readFile(filename):#read a file or print an error
-    try:
-        file = open(filename)
-    except IOError:
-        print("ERROR - Unable to open file %s" % filename)
-        exit()
-    return file.read()
-def separateHeadBody(text):
-    global parserHead, parserBody
-    parts = text.split(separatorString,1)  #separate head from body
-    if len(parts)==2:
-        parserHead = parts[0].strip("\n")
-        parserBody = parts[1].strip("\n")
-    else:
-        parserBody = parts[0].strip("\n")
-
-def inputTextToList(text):
-    temp = []
-    for line in text.splitlines():
-        parts = line.split(defaultDelimiter)
-        for part in parts:
-            temp.append(part)
-    return temp
-def parseTextToList(text):
-    i = 0
-    lines = text.splitlines()
-    fullLines = []
-    temp = ""
-    while i < len(lines):
-        if isLineComplete(temp):
-            temp = re.sub(regexFixUserMissingSpaces, "\\2 \\3", temp, 0, re.MULTILINE)
-            fullLines.append(removePunctuationSpaces(removeRedundantWhitespaces(temp)))
-            temp =lines[i]
-        else:
-            temp+=lines[i]
-        if i == len(lines) - 1 and isLineComplete(temp):
-            temp = re.sub(regexFixUserMissingSpaces, "\\2 \\3", temp, 0, re.MULTILINE)
-            fullLines.append(removePunctuationSpaces(removeRedundantWhitespaces(temp)))
-        i+=1
-    return fullLines
-
-def validTypeSingle(t):
-    return t in ("int", "str", "bool", "float", "complex")
-def validTypeContainer(t):
-    return t in ("list", "dict", "tuple", "set", "frozenset")
 
 def setGlobal(name, value, t, initializeOnly = False):#creates a global variable with a given value
     if validTypeSingle(t):
@@ -167,22 +57,14 @@ def setGlobalOrLocal(name, value, t, setAsGlobal, initializeOnly = False):#creat
     if setAsGlobal:
         return setGlobal(name, value, t, initializeOnly)
     return setLocal(name, value, t, initializeOnly)
-def setvar(name, value, t):#creates a global variable with a given value checks for the type
+'''def setvar(name, value, t):#creates a global variable with a given value checks for the type
     if not t in pythonTypes.keys():
         return False
     createdVariables[name] = pythonTypes[t](value) #cast to type
-    return True
+    return True'''
 ####parsing functions
-def isLineComplete(line):#true is len > 0 and open parentheses = closed
-    openBrackets = 0
-    i = 0
-    while i < len(line):
-        if line[i] in ("{", "(", "["):
-            openBrackets+=1
-        elif line[i] in ("}", ")", "]"):
-            openBrackets-=1
-        i+=1
-    return openBrackets == 0 and len(line)>0
+
+
 def parseDictGetBothParts(text, separator = ","):#returns (keyText, valueText)
     openBrackets = 0
     i = 0
@@ -202,21 +84,11 @@ def parseDictGetBothParts(text, separator = ","):#returns (keyText, valueText)
             return result
         i+=1
     return False
-def parseConfigurationVariables(text):
-    matches = re.finditer(regexConfigurationVariables, text, re.MULTILINE)
-    for matchNum, match in enumerate(matches):
-        matchNum = matchNum + 1
-        tempConfig = [] #0 -> name 1 -> value, 2 -> type    
-        for groupNum in range(0, len(match.groups())):
-            groupNum = groupNum + 1
-            tempConfig.append(match.group(groupNum))
-        tempConfig[1] = removeQuotes(tempConfig[1])
-        if not setvar(tempConfig[0], tempConfig[1], tempConfig[2]):
-            print("ERROR - Failed to apply configuration variable (INVALID TYPE): number %d, name: %s, type: %s" % (matchNum, tempConfig[0], tempConfig[2]))
-    return False
+
 
 def parseLenValue(text):#checks if the text is a value or a variable name containing the size in the format {varName}
-    text.strip(defaultDelimiter)
+    global configs
+    text.strip(configs["defaultDelimiter"])
     if text[0] == "{" and ";" in text:
         parserTemp = parseDictGetBothParts(text, ";")
         if parserTemp and parserTemp[0] in createdVariables and parserTemp[1] in createdVariables:
@@ -244,10 +116,10 @@ def addElementToContainer(container, element):
     return container
 
 def parseVariable(text, setAsGlobal = False):
-    global inputText, createdVariables
+    global inputText, createdVariables, configs
     #print("\n%s = %s"% (text, str(inputText)))
     parserVar = ""
-    text = text.strip(defaultDelimiter)     #remove side delimeters
+    text = text.strip(configs["defaultDelimiter"])     #remove side delimeters
     #if elementar variable create local and return
     if text[0] == "(":      #single var
         match = re.search(regexSingleVarAnonymous,text)  #match the format (type)
@@ -273,7 +145,7 @@ def parseVariable(text, setAsGlobal = False):
                             parserVar = setLocal(match.group(1), inputText[0], "str") #instantiate the string, it is set as global as long as the name is not parserTemp
                             del inputText[0]
                         for valIndex in range(length-1):
-                            parserVar+= defaultDelimiter + inputText[0]
+                            parserVar+= configs["defaultDelimiter"] + inputText[0]
                             del inputText[0]
                     else: #only creat an empty string
                          parserVar = setLocal(match.group(1), "", "str")
@@ -329,24 +201,24 @@ def parseVariable(text, setAsGlobal = False):
 
 ################################################## Main program flow
 def mparseContent(parseText, it, verbosity = False, classes = []):
-    global parserHead, parserBody, inputText, availableClasses
+    global parserHead, parserBody, inputText, availableClasses, configs
     availableClasses = classParser(classes)
     parseText = cleanText(parseText)            #remove irrelvant chars that affect parsing - aka OCD
-    separateHeadBody(parseText)                 #fill the head and body variables
-    parseConfigurationVariables(parserHead)     #get the value of the configuration variables in the head
+    parserHead, parserBody = separateHeadBody(parseText)                 #fill the head and body variables
+    configs = parseConfigurationVariables(parserHead, configs, pythonTypes)     #get the value of the configuration variables in the head
     parserBody = parseTextToList(parserBody)    #split the input file by the delimiter into a list
 
     inputText = it
     inputText = cleanText(inputText)        #remove irrelvant chars that affect parsing - aka OCD - from the input
-    inputText = inputTextToList(inputText)  #split the input file by the delimiter into a list
+    inputText = inputTextToList(inputText, configs["defaultDelimiter"])  #split the input file by the delimiter into a list
 
     if verbosity:
         linePrint = "Parsing line %2d  - %"+str(len(max(parserBody, key=len)))+"s...   "
     for lineIndex, line in enumerate(parserBody):              #iterate body line by line
         if verbosity:
             print(linePrint % (lineIndex, line), end='')
-        line = line.strip(defaultDelimiter)
-        parts = line.split(defaultDelimiter)
+        line = line.strip(configs["defaultDelimiter"])
+        parts = line.split(configs["defaultDelimiter"])
         for part in parts:                      #iterate line part by part, separated by the defaultDelimiter
             if len(inputText) == 0:
                 print("\nERROR - The input file has less variables than the parser file indicated, stopped at instruction:\n       %s" % part)
@@ -369,28 +241,6 @@ def mparse(parseFileName, imputFileName, verbosity = False, classes = []):
     inputText = readFile(imputFileName)      #get the text from the input file
     return mparseContent(parseText, inputText, verbosity, classes)
 
-def mparseCmd():#receives the input from the command line
-    parserVerbosity = False
-    try:
-        options, remainder = getopt.getopt(argv[1:], 'hvu', ['help', 'verbose', 'unavailable'])
-    except getopt.GetoptError as err:
-        print('GETOPT ERROR:', err)
-        displayUsage()
-        exit(1)
-    for opt, arg in options:
-        if opt in ('-h', '--help'):
-            displayUsage()
-            exit()
-        if opt in ('-u', '--unavailable'):
-            displayUnavailableVariables()
-            exit()
-        if opt in ('-v', '--verbose'):
-            parserVerbosity = True
-    ####Initial checks
-    if len(remainder) != 2:
-        print("Wrong number of arguments\n>>python %s -flags parseFile.txt inputFile.txt" % argv[0])
-        exit()
-    mparse(remainder[0], remainder[1], parserVerbosity)
     
 def getGlobals():
     return createdVariables
