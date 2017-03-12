@@ -17,11 +17,6 @@ class classParser:#stores and manages a list of the classes used by the parser, 
 
 
 #TODO: include set and frozenset, see tuple implementation in (varName, tuple, len) format
-
-def displayUnavailableVariables():
-    print("Unavailable variable names (alphabetically): ")
-    print("\n".join(prohibitedVariableNames))
-
 def displayUsage():
     print("Master Parser Python")
     print("Parse input files (inputFile.txt) into python variables by specifying the layout of the variables (parserLayout.txt)")
