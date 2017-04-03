@@ -5,6 +5,7 @@ from utils import *
 
 #regex constants:
 regexConfigurationVariables = r"{(.*),(.*),(.*)}"
+regexParseLenVariable = r"^{(.+)}"                                          #format {varName}
 
 class pyhparser:
     configs = {"delimiter": ' '}#configuration variables
@@ -31,14 +32,58 @@ class pyhparser:
                 configs[tempConfig[0]] = types[tempConfig[1]](tempConfig[2]) #cast to type
     def getVariables(self):#returns the variables created after parsing the file
         return variables
-    def setVariable(self, name, value, initializeOnly = False):#inserts a new variable into the variables dict
-        pass
+    def appendVariables(self, appendTo):#appends out variables to the dict passed
+        if type(appendTo)!= dict:
+            print("Error - appendVariables should receive a dict, passed argument is of type " + type(appendTo))
+            return
+        appendTo.update(variables)
     def setTempVariable(self, name, value, initializeOnly = False):#creates a temporary variable and returns it
-        pass
-    def parseLenValue(self, text):
-        pass
+        if validTypeSingle(t):
+            locals()[name] = pythonTypes[t](value) #cast to type
+        elif validTypeContainer(t):
+            if initializeOnly:
+                locals()[name] = pythonTypes[t]()
+            else:
+                locals()[name] = value
+        return locals()[name]
+    def setVariable(self, name, value, initializeOnly = False):#inserts a new variable into the variables dict
+        return variables[name] = self.setTempVariable(name, value, initializeOnly)
+    def parseDictGetBothParts(self, text, separator = ","):#receives something like {keyText, valueText} and returns (keyText, valueText)
+        openBrackets = 0
+        i = 0
+        middle = 0
+        result=[]
+        while i < len(text):
+            if text[i] in ("{", "(", "["):
+                openBrackets+=1
+            elif text[i] in ("}", ")", "]"):
+                openBrackets-=1
+            elif text[i] == separator and openBrackets == 1:
+                middle = i
+                result.append(text[1:i])
+            if len(result) == 1 and openBrackets == 0:
+                result.append(text[middle+1:i])
+                result.append(text[i+2:])
+                return result
+            i+=1
+        return False
+    def parseLenValue(self, text):#receives a text to parse, checks if the text is a value or a variable name containing the size in the format {varName}, ex: 10, {n}
+        text.strip(configs["delimiter"])
+        if text[0] == "{" and ";" in text:
+            parserTemp = self.parseDictGetBothParts(text, ";")
+            if parserTemp and parserTemp[0] in variables and parserTemp[1] in variables:
+                return variables[parserTemp[0]][len(variables[parserTemp[1]])]  #var0[len(var1)], this is like increasing the index, but len is used because it increases by one on each call
+        elif text[0] == "{":
+            text = re.sub(regexParseLenVariable, "\\1", text, 0, re.MULTILINE)
+            if text in variables:
+                return variables[text]
+        try: 
+            return int(text)
+        except ValueError:
+            print("ERROR - the variable name you specified for the length {%s} does not exist at this point or is not valid" % text)
+            exit()
     def isThereEnoughDataToParse(self, length):#returns False if the values left to parse are less than the required ones
-        pass
+        return length <= len(inputData)
     def addElementToContainer(self, container, element):#receives a random type container and adds a new element to it
         if type(container) == list:
             container.append(element)
@@ -64,4 +109,6 @@ class pyhparser:
     def parseDictVariable(self, text):#format {type1,type2}
         pass
     def parseVariable(self, text, saveVar = False):#saveVar == True means this is a variable the user wants, not a temp
+        pass
+    def parse(self):#executes the parsing functions and creates the varialbes from the Parser and inputData
         pass
