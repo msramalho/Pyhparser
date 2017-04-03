@@ -29,3 +29,5 @@ def removeQuotes(text):
     return re.sub(regexRemoveDoubleQuoteFromString, "\\1", text, 0)
 def cleanText(text):
     return removePunctuationSpaces(removeRedundantWhitespaces(removeComments(text)))
+def cleanInput(input):#todo: see if removeRedundantWhitespaces is sufficient
+    return removePunctuationSpaces(removeRedundantWhitespaces(removeComments(text)))
