@@ -1,17 +1,17 @@
 #this is the main class
 import re
 from parserTools.cleaner import *
-from utils import *
+from parserTools.utils import *
 
 #regex constants:
 regexConfigurationVariables = r"{(.*),(.*),(.*)}"
-regexParseLenVariable = r"^{(.+)}"                                          #format {varName}
-
+regexParseLenVariable = r"^{(.+)}"                      #format {varName}
+regexSingleVar = r"^\(([^\(\),\s]+),([^\(\),\s]+)\)"    #format (varName,type)
 class pyhparser:
-    configs = {"delimiter": ' '}#configuration variables
+    configs = {"delimiter": ' ', "tempVar": "parserTemp"}#configuration variables
     variables = dict()          #dict of variables to return to the user
     pythonTypes = {'int': int, 'float': float, 'complex':complex, 'bool': bool, 'str': str, 'dict':dict, 'tuple':tuple, 'list':list, 'set':set}
-    def __init__(self, inputText, parserData, classes):#creates a new instance
+    def __init__(self, inputText, parserText, classes):#creates a new instance
         self.inputData = cleanInput(inputText)  #remove whitespaces
         self.parserData = cleanText(parserText) #remove comments and whitespaces
         self.classes = classParser(classes)     #list of classes required for this input (classParser instance)
@@ -34,7 +34,7 @@ class pyhparser:
         return variables
     def appendVariables(self, appendTo):#appends out variables to the dict passed
         if type(appendTo)!= dict:
-            print("Error - appendVariables should receive a dict, passed argument is of type " + type(appendTo))
+            print("Error - appendVariables should receive a dict, passed argument is of type %s" % type(appendTo))
             return
         appendTo.update(variables)
     def setTempVariable(self, name, value, initializeOnly = False):#creates a temporary variable and returns it
@@ -83,7 +83,7 @@ class pyhparser:
             print("ERROR - the variable name you specified for the length {%s} does not exist at this point or is not valid" % text)
             exit()
     def isThereEnoughDataToParse(self, length):#returns False if the values left to parse are less than the required ones
-        return length <= len(inputData)
+        return length <= len(self.inputData)
     def addElementToContainer(self, container, element):#receives a random type container and adds a new element to it
         if type(container) == list:
             container.append(element)
@@ -94,14 +94,49 @@ class pyhparser:
         elif type(container) == set:
             container.add(element)
         return container
-    def parseSingleVarType(self):#parses (type)
-        pass
-    def parseSingleVarNameType(self):#parses (name,type)
-        pass
-    def parseSingleVarNameTypeLen(self):#parses (name,type,len)
-        pass
+    def parseSingleVarType(self, text):#parses (type)
+        regexSingleVarAnonymous = r"^\(([^\(\),\s]+)\)" #format (type)
+        match = re.search(regexSingleVarAnonymous,text)  #match the format (type)
+        if match and validTypeSingle(match.group(1)):
+            parserVar = setLocal("parserTemp", self.inputData[0], match.group(1))#never global
+            del self.inputData[0]
+            return True
+        return False
+    def parseSingleVarNameType(self, text):#parses (name,type)
+        match = re.search(regexSingleVar,text)  #match the format (varName, type)
+        if match and validTypeSingle(match.group(2)):
+            parserVar = setGlobal(match.group(1), self.inputData[0], match.group(2))
+            del self.inputData[0]
+            return True
+        return False
+    def parseSingleVarNameTypeLen(self, text, setAsGlobal):#parses (name,type,len)
+        regexSingleVarLen = r"^\(([^\(\),\s]+),(str),([^\(\),\s]+)\)"       #format (varName,str,len)
+        if match: 
+            length = self.parseLenValue(match.group(3))
+            if not self.isThereEnoughDataToParse(length, match.group(1)):  #exits if this len is not parsable
+                print("\n\nERROR - Not enough data to parse in:\n%s" % text)
+                exit()
+
+            if length > 0:
+                if not match.group(1) in locals():
+                    parserVar = self.setTempVariable(match.group(1), self.inputData[0], "str") #instantiate the string, it is set as global as long as the name is not parserTemp
+                    del self.inputData[0]
+                for valIndex in range(length-1):
+                    parserVar+= configs["delimiter"] + self.inputData[0]
+                    del self.inputData[0]
+            else: #only create an empty string
+                parserVar = self.setTempVariable(match.group(1), "", "str")
+            if setAsGlobal or match.group(1) != configs["tempVar"]:
+                self.setVariable(match.group(1), parserVar, "str")
     def parseSingleVar(self, text):#receives something like (type), (name,type) or (name,type,len) and returns a new variable
-        pass
+        if(!self.parseSingleVarType(text)):
+            match = re.search(regexSingleVar,text)  #match the format (type, len), called before
+            if match and match.group(1) == "str":#the names cannot be protected words so this is type, len
+                text = "(%s,%s,%s)" % (configs["tempVar"], match.group(1), match.group(2))
+            if(!self.parseSingleVarNameType(text)):
+                if(!self.parseSingleVarNameTypeLen(text)):
+                    print("\n\nERROR - Unable to parse single variable in:\n%s" % text)
+                    exit()
     def parseClassVariable(self, text):#format [name,class,className,{param1:paramType1,param2:paramType2,...}]
         pass
     def parseContainerVariable(self, text):#format [name,type,length,unitType]
@@ -109,6 +144,17 @@ class pyhparser:
     def parseDictVariable(self, text):#format {type1,type2}
         pass
     def parseVariable(self, text, saveVar = False):#saveVar == True means this is a variable the user wants, not a temp
-        pass
+        parserVar = ""
+        text = text.strip(configs["delimiter"])     #remove side delimeters
+        if text[0] == "(":      #single var
+            self.parseSingleVar(text)
+        elif text[0] == "[":    #container var
+            pass
+        elif text[0] == "{":        #dict
+            pass
+        else:
+            print("\n\nERROR - Unable to detect if single or container variable in:\n%s" % text)
+            exit()
+        return parserVar #the local variable created
     def parse(self):#executes the parsing functions and creates the varialbes from the Parser and inputData
         pass
