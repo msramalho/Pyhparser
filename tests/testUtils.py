@@ -1,5 +1,5 @@
 import sys, time
-sys.path.append('../')
+sys.path.append('../pyhparser')
 from pyhparser import *
 
 def validTypeSingle(t):
