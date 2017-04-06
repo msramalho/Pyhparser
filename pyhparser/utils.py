@@ -1,5 +1,5 @@
 import re
-from parserTools.cleaner import *
+from cleaner import *
 
 separatorString = ".body"
 regexFixUserMissingSpaces = r"((\))(\())" #adds a space between )( if it is replaced by "\\2 \\3"

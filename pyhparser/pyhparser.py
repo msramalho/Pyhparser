@@ -1,8 +1,8 @@
 #this is the main class
 import re
-from parserTools.cleaner import *
-from parserTools.utils import *
-from parserTools.classParser import *
+from cleaner import *
+from utils import *
+from classParser import *
 
 #regex constants:
 regexConfigurationVariables = r"{(.*),(.*),(.*)}"
