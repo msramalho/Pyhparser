@@ -64,3 +64,32 @@ def isLineComplete(line):#true is len > 0 and open parentheses = closed
             openBrackets-=1
         i+=1
     return openBrackets == 0 and len(line)>0
+def addElementToContainer(container, element):#receives a random type container and adds a new element to it
+    if type(container) == list:
+        container.append(element)
+    elif type(container) == tuple:
+        container+=(element,)
+    elif type(container) == dict:
+        container.update(element)
+    elif type(container) == set:
+        container.add(element)
+    return container
+def parseDictGetBothParts(text, separator = ","):#receives something like {keyText, valueText} and returns (keyText, valueText)
+    openBrackets = 0
+    i = 0
+    middle = 0
+    result=[]
+    while i < len(text):
+        if text[i] in ("{", "(", "["):
+            openBrackets+=1
+        elif text[i] in ("}", ")", "]"):
+            openBrackets-=1
+        elif text[i] == separator and openBrackets == 1:
+            middle = i
+            result.append(text[1:i])
+        if len(result) == 1 and openBrackets == 0:
+            result.append(text[middle+1:i])
+            result.append(text[i+2:])
+            return result
+        i+=1
+    return None
