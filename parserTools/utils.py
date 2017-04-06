@@ -10,8 +10,9 @@ def readFile(filename):#read a file or print an error
     except IOError:
         print("ERROR - Unable to open file %s" % filename)
         exit()
-    return file.read()
-
+    temp = file.read()
+    file.close()
+    return temp
 def separateHeadBody(text):
     parserHead = parserBody = ""
     parts = text.split(separatorString,1)  #separate head from body
@@ -31,6 +32,10 @@ def inputTextToList(text, delimiter):
     return temp
 
 def parseTextToList(text):
+    #replace ][ by ]\n[ to separate containers
+    regex = r"\]\s*\["
+    subst = "]\\n["
+    text = re.sub(regex, subst, text, 0, re.MULTILINE)
     i = 0
     lines = text.splitlines()
     fullLines = []
