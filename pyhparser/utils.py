@@ -1,5 +1,6 @@
-import re
-from cleaner import *
+import re, sys
+sys.path.append('../')
+from pyhparser.cleaner import *
 
 separatorString = ".body"
 regexFixUserMissingSpaces = r"((\))(\())" #adds a space between )( if it is replaced by "\\2 \\3"

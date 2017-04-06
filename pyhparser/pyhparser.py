@@ -1,8 +1,9 @@
 #this is the main class
-import re
-from cleaner import *
-from utils import *
-from classParser import *
+import re, sys
+sys.path.append('../')
+from pyhparser.cleaner import *
+from pyhparser.utils import *
+from pyhparser.classParser import *
 
 #regex constants:
 regexConfigurationVariables = r"{(.*),(.*),(.*)}"
