@@ -1,4 +1,4 @@
-# Python Hackathon Parser - The Hackahton Quintessence
+# Python Hackathon Parser - The Hackathon Quintessence
 
 ## What is this?
 Pyhparser is a tool that parses input files in *hackathons* by simply specifying the format the data is in.
