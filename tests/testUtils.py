@@ -18,7 +18,6 @@ def fullTest(inputVar, parserVar, title = "Random Test", expectedCountVars = 0, 
     startTime = time.time()
     print("--------------------------------%s--------------------------------" % title)
     p = pyhparser(inputVar, parserVar, classes)         #create a pyhparser instance
-    globals() = p.appendVariables(globals())
     p.parse()                                           #execute the parsing
     printVars(p.getVariables())                         #display values of created variables
     result = "SUCCESS" if expectedCountVars == p.countVariables() else "FAILURE"
