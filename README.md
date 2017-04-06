@@ -1,9 +1,7 @@
-# Python Hackathon Parser
-### The Hackahton Quintessence
----
+# Python Hackathon Parser - The Hackahton Quintessence
 
 ## What is this?
-Pyhparser is a tool that parses input files from competitions by simply specifying the format the data is in.
+Pyhparser is a tool that parses input files in *hackathons* by simply specifying the format the data is in.
 
 ## Why would you use it?
 Because you don't want to waste time in time-sensitive competitions naming, casting, iterating and reading variables. You want to focus on challenge and not on data parsing!
@@ -13,23 +11,23 @@ Because you don't want to waste time in time-sensitive competitions naming, cast
 `pip install https://github.com/msramalho/pyhparser`
 #### 2 - Copy and paste this code where you want to parse the input data:
 ```python
-	from pyhparser import *
-    ...
-    inputVar = "10"										#if the data is in a file do readFile("inputFile.txt")
-    parserVar = "(n, int)"								#if the parser is in a file do readFile("parserFile.txt")
-    classes = []										#list of classes you use, if they appear in the parser
-    p = pyhparser(inputVar, parserVar, classes)         #create a pyhparser instance
-    p.parse()                                           #execute the parsing
-    tempGlobals = p.getVariables()                      #get the values of the created variables
-	for key, value in tempGlobals.items():
-    	globals()[key] = value							#make the created var acessible from every scope
-    globals() = p.appendVariables(globals())			#directly make the variables available by their name
-    print(n)
+from pyhparser import *
+
+inputVar = "10"                                #if the data is in a file do readFile("inputFile.txt")
+parserVar = "(n, int)"                         #if the parser is in a file do readFile("parserFile.txt")
+classes = []                                   #list of classes you use, if they appear in the parser
+p = pyhparser(inputVar, parserVar, classes)    #create a pyhparser instance
+p.parse()                                      #execute the parsing
+tempGlobals = p.getVariables()                 #get the values of the created variables
+for key, value in tempGlobals.items():
+    globals()[key] = value                     #make the created var acessible from every scope
+globals() = p.appendVariables(globals())       #directly make the variables available by their name
+print(n)
 ```
-This code would result in this:
+The above code can be translated to:
 
 | Input File | Parser File  | Result |
-|:----------:|:------------:|:----------:|
+|:----------:|:------------:|:------:|
 | 10         | (x, int)     | x = 10, you can now use x in your script|
 
 ## Instructions
