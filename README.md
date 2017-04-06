@@ -20,8 +20,9 @@ Because you don't want to waste time in time-sensitive competitions naming, cast
     classes = []										#list of classes you use, if they appear in the parser
     p = pyhparser(inputVar, parserVar, classes)         #create a pyhparser instance
     p.parse()                                           #execute the parsing
-    #myVars = p.getVariables()                         	#get the values of the created variables
-    # OR
+    tempGlobals = p.getVariables()                      #get the values of the created variables
+	for key, value in tempGlobals.items():
+    	globals()[key] = value							#make the created var acessible from every scope
     globals() = p.appendVariables(globals())			#directly make the variables available by their name
     print(n)
 ```
