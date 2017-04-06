@@ -1,43 +1,40 @@
-# Master Parser Python 
+# Python Hackathon Parser
 ### The Hackahton Quintessence
+---
 
-Avoid wasting time parsing input files in **hackathons**. 
-**mparserpython** parses input files (_inputFile.txt_) into python variables by specifying the layout of the variables (_parserFile.txt_):
+## What is this?
+Pyhparser is a tool that parses input files from competitions by simply specifying the format the data is in.
 
-| Parser File  | Input File | Result |
-|:------------:|:----------:|:----------:|
-| (x, int)     | 10         | x = 10, you can now use x in your script         |
-## Instructions (no pip or easy_install)
-1. Download [mparserpython.py](https://github.com/msramalho/mparserpython/blob/master/mparserpython.py);
-2. Include this file in your working dir;
-3. Do `import mparserpython`;
-4. Parse your files:
-    ```python 
-    def mparse(parserFile, inputFile, [verbose], [classesUsed])
+## Why would you use it?
+Because you don't want to waste time in time-sensitive competitions naming, casting, iterating and reading variables. You want to focus on challenge and not on data parsing!
 
-   #Examples:
-
-    mparserpython.mparse("fileParser.txt","fileInput.txt")
-    mparserpython.mparse("fileParser.txt","fileInput.txt", True)
-    mparserpython.mparse("fileParser.txt","fileInput.txt", False, [MyClass1, MyClass2])
-     ```
-5. If your content is in strings call the function `mparserpython.mparseContent` instead of `mparserpython.mparse` and replace the file names by your text values;
-6. Now assign the parsed variables to your scope with:
+## How do you use it?
+#### 1 - Install it on your computer
+`pip install https://github.com/msramalho/pyhparser`
+#### 2 - Copy and paste this code where you want to parse the input data:
 ```python
-tempGlobals = mparserpython.getGlobals()
-for key, value in tempGlobals.items():
-    globals()[key] = value
+	from pyhparser import *
+    ...
+    inputVar = "10"										#if the data is in a file do readFile("inputFile.txt")
+    parserVar = "(n, int)"								#if the parser is in a file do readFile("parserFile.txt")
+    classes = []										#list of classes you use, if they appear in the parser
+    p = pyhparser(inputVar, parserVar, classes)         #create a pyhparser instance
+    p.parse()                                           #execute the parsing
+    tempGlobals = p.getVariables()                      #get the values of the created variables
+	for key, value in tempGlobals.items():
+    	globals()[key] = value							#make the created var acessible from every scope
+    globals() = p.appendVariables(globals())			#directly make the variables available by their name
+    print(n)
 ```
-### Full code example:
-```python
-#MyClass must be a class defined somewhere before you call mparse
-mparserpython.mparse("fileParser.txt","fileInput.txt", False, [MyClass]) #not verbose
-tempGlobals = mparserpython.getGlobals()
-for key, value in tempGlobals.items():
-    globals()[key] = value
-```
+This code would result in this:
 
-## Parsing format
+| Input File | Parser File  | Result |
+|:----------:|:------------:|:----------:|
+| 10         | (x, int)     | x = 10, you can now use x in your script|
+
+## Instructions
+
+### Parsing format
 
 - Single variables (int, str, bool, float, complex):
 
@@ -58,7 +55,7 @@ for key, value in tempGlobals.items():
 
 ---
 
-## Examples
+### Examples
 
 | Purpose  | Parser File  | Input File | Result |
 | ---------| ------------ | ---------- | ------ |
@@ -74,9 +71,9 @@ for key, value in tempGlobals.items():
 *the size of each string in the myStrings list is in the value of the corresponding index of the sizes list
 
 #### More examples:
-- See the [examples folder:](https://github.com/msramalho/mparserpython/tree/master/examples)
-  - [Global example 01](https://github.com/msramalho/mparserpython/tree/master/examples/ex_01)
-  - [Hashcode 2017 example](https://github.com/msramalho/mparserpython/tree/master/examples/ex_hashcode2017)
+- See the [examples folder:](https://github.com/msramalho/pyhparser/tree/master/examples)
+  - [Global example 01](https://github.com/msramalho/pyhparser/tree/master/examples/ex_01)
+  - [Hashcode 2017 example](https://github.com/msramalho/pyhparser/tree/master/examples/ex_hashcode2017)
 - Class instance with 4 parameters (one of which is a dict):
 ``` 
 [peter, class, Person, {age:(int)}, {name:(str)}, {height:(float)}, {keyValue:{(int), (float)}}]
@@ -91,8 +88,6 @@ for key, value in tempGlobals.items():
 ## TODO
 
 - [ ] Good wiki
-- [ ] Pip and easyinstall packages
 - [ ] Implement set parsing
-- [ ] Implement frozenset parsing
 
 

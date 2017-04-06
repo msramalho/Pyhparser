@@ -1,6 +1,7 @@
 import sys
+sys.path.append('../../tests')
 sys.path.append('../../')
-import mparserpython
+from testUtils import *
 
 class Endpoint:
     def __init__(self, datacenterLatency, countCaches, caches):
@@ -18,23 +19,5 @@ class Request:
     def __str__(self):
          return ("%d requests for video %d coming from endpoint %d." % (self.countRequests, self.videoId, self.endpointId))
 
-def printStatus(myVars):
-    for key, value in myVars.items():
-        if type(value) == list and not mparserpython.validTypeSingle(str(type(value[0]).__name__)):
-            print("%20s:" % (key))
-            for el in value:
-                print("%23s%s" % (" ",str(el)))
-        else:
-            print("%20s:  %s" % (key, value))
 
-mparserpython.mparse("ex_hashcode_parser.txt","ex_hashcode_input.txt", True, [Endpoint, Request])    #True means verbose
-
-#the variables are ready but are not accessible in this file's global scope. 
-#to achieve this simple do:
-tempGlobals = mparserpython.getGlobals()
-for key, value in tempGlobals.items():
-    globals()[key] = value
-
-
-#to display our results
-printStatus(tempGlobals)
+fullTest(readFile("ex_hashcode_input.txt"), readFile("ex_hashcode_parser.txt"), "Example 01", expectedCountVars = 10, classes= [Endpoint, Request])
