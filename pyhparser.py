@@ -10,16 +10,18 @@ regexParseLenVariable = r"^{(.+)}"                      #format {varName}
 regexSingleVar = r"^\(([^\(\),\s]+),([^\(\),\s]+)\)"    #format (varName,type)
 class pyhparser:
     configs = {"delimiter": ' ', "tempVar": "parserTemp"}#configuration variables
-    variables = dict()          #dict of variables to return to the user
     pythonTypes = {'int': int, 'float': float, 'complex':complex, 'bool': bool, 'str': str, 'dict':dict, 'tuple':tuple, 'list':list, 'set':set}
     def __init__(self, inputText, parserText, classes):#creates a new instance
+        self.variables = dict()          #dict of variables to return to the user
         self.inputData = cleanInput(inputText)  #remove whitespaces
         self.parserData = cleanText(parserText) #remove comments and whitespaces
         self.head, self.body = separateHeadBody(self.parserData)
-        self.parserData = parseTextToList(self.parserData) #conver the inpute into a list
+        self.parserData = parseTextToList(self.body) #conver the inpute into a list
         self.inputData = inputTextToList(self.inputData, self.configs["delimiter"])  #split the input file by the delimiter into a list
         self.classes = classParser(classes)     #list of classes required for this input (classParser instance)
         self.parseConfigs()
+    def clear(self):#removes the variables created thus far
+        self.variables = dict()
     def parseConfigs(self):#parses the head variable for configuration variables
         matches = re.finditer(regexConfigurationVariables, self.head, re.MULTILINE)
         for matchNum, match in enumerate(matches):
@@ -29,10 +31,10 @@ class pyhparser:
                 groupNum = groupNum + 1
                 tempConfig.append(match.group(groupNum))
             tempConfig[1] = removeQuotes(tempConfig[1])
-            if not tempConfig[1] in types.keys():
+            if not tempConfig[2] in self.pythonTypes.keys():
                 print("ERROR - Failed to apply configuration variable (INVALID TYPE): number %d, name: %s, type: %s" % (matchNum+1, tempConfig[0], tempConfig[2]))
             else:
-                self.configs[tempConfig[0]] = types[tempConfig[1]](tempConfig[2]) #cast to type
+                self.configs[tempConfig[0]] = self.pythonTypes[tempConfig[2]](tempConfig[1]) #cast to type
     def getVariables(self):#returns the variables created after parsing the file
         return self.variables
     def countVariables(self):#return the number of variables in self.variables
@@ -89,6 +91,15 @@ class pyhparser:
             parserVar = self.setVariable(match.group(1), self.inputData[0], match.group(2))#default sets it as global
             del self.inputData[0]
             return parserVar
+        regexSingleVarDict = r"^\(([^\(\),\s]+),({.+,.+})\)" #format (int,{sth,sth})
+        match = re.search(regexSingleVarDict, text)
+        if match:
+            dictParts = parseDictGetBothParts(match.group(2))
+            if dictParts:                        #instantiate the local variable
+                parserTempKey = self.parseVariable(dictParts[0])
+                parserTempValue = self.parseVariable(dictParts[1])
+                parserVar = {parserTempKey: parserTempValue}
+                return self.setVariable(match.group(1),parserVar, "dict")
         return None
     def parseSingleVarNameTypeLen(self, text):#parses (name,type,len)
         regexSingleVarLen = r"^\(([^\(\),\s]+),(str),([^\(\),\s]+)\)"       #format (varName,str,len)
@@ -175,9 +186,11 @@ class pyhparser:
         match = parseDictGetBothParts(text)
         #match = re.search(regexParseDictionary,text)  #match the format {type1,type2}
         if match:                        #instantiate the local variable
-            parserTempKey = parseVariable(match[0])
-            parserTempValue = parseVariable(match[1])
+            parserTempKey = self.parseVariable(match[0])
+            parserTempValue = self.parseVariable(match[1])
             parserVar = {parserTempKey: parserTempValue}
+            return parserVar
+        return None
     def parseVariable(self, text, saveVar = False):#saveVar == True means this is a variable the user wants, not a temp
         text = text.strip(self.configs["delimiter"])     #remove side delimeters
         if text[0] == "(":      #single var
@@ -191,7 +204,6 @@ class pyhparser:
             exit()
     def parse(self):#executes the parsing functions and creates the varialbes from the Parser and inputData
         #linePrint = "Parsing line %2d  - %"+str(len(max(self.body, key=len)))+"s...   \n"
-        print(self.parserData)
         for lineIndex, line in enumerate(self.parserData):              #iterate body line by line
             #print(linePrint % (lineIndex, line), end='')
             line = line.strip(self.configs["delimiter"])
