@@ -144,7 +144,7 @@ def parseVariable(text, setAsGlobal = False):
                         for valIndex in range(length-1):
                             parserVar+= configs["defaultDelimiter"] + inputText[0]
                             del inputText[0]
-                    else: #only creat an empty string
+                    else: #only create an empty string
                          parserVar = setLocal(match.group(1), "", "str")
                     if setAsGlobal or match.group(1) != "parserTemp":
                         setGlobal(match.group(1), parserVar, "str")
@@ -205,8 +205,7 @@ def mparseContent(parseText, it, verbosity = False, classes = []):
     configs = parseConfigurationVariables(parserHead, configs, pythonTypes)     #get the value of the configuration variables in the head
     parserBody = parseTextToList(parserBody)    #split the input file by the delimiter into a list
 
-    inputText = it
-    inputText = cleanText(inputText)        #remove irrelvant chars that affect parsing - aka OCD - from the input
+    inputText = cleanText(it)        #remove irrelvant chars that affect parsing - aka OCD - from the input
     inputText = inputTextToList(inputText, configs["defaultDelimiter"])  #split the input file by the delimiter into a list
 
     if verbosity:
