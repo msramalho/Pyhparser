@@ -1,4 +1,4 @@
-{defaultDelimiter,' ', str}               #this is a comment ####
+{delimiter,' ', str}               #this is a comment ####
 
 #you can have as many whitespaces as you want
 
