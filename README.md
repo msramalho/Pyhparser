@@ -1,14 +1,14 @@
 # Python Hackathon Parser - The Hackathon Quintessence
 
 ## What is this?
-Pyhparser is a tool that parses input files in *hackathons* by simply specifying the format the data is in.
+Pyhparser is a tool that parses input files input by simply specifying the format the data is in, and allowing you to use them as your own. It is great for *hackathons* and day-to-day data tasks.
 
 ## Why would you use it?
-Because you don't want to waste time in time-sensitive competitions naming, casting, iterating and reading variables. You want to focus on challenge and not on data parsing!
+Because you don't want to waste time during time-sensitive competitions in casting, iterating and reading variables. You want to focus on challenge and not on data parsing!
 
 ## How do you use it?
 #### 1 - Install it on your computer
-`pip install https://github.com/msramalho/pyhparser`
+`pip install git+https://github.com/msramalho/pyhparser`
 #### 2 - Copy and paste this code where you want to parse the input data:
 ```python
 from pyhparser import *
@@ -16,13 +16,13 @@ from pyhparser import *
 inputVar = "10"                                #if the data is in a file do readFile("inputFile.txt")
 parserVar = "(n, int)"                         #if the parser is in a file do readFile("parserFile.txt")
 classes = []                                   #list of classes you use, if they appear in the parser
+
 p = pyhparser(inputVar, parserVar, classes)    #create a pyhparser instance
 p.parse()                                      #execute the parsing
 tempGlobals = p.getVariables()                 #get the values of the created variables
 for key, value in tempGlobals.items():
     globals()[key] = value                     #make the created var acessible from every scope
-globals() = p.appendVariables(globals())       #directly make the variables available by their name
-print(n)
+print(n)                                       #print the value of n, the parsed variable
 ```
 The above code can be translated to:
 
