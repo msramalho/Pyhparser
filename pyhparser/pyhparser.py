@@ -28,7 +28,6 @@ class pyhparser:
         for matchNum, match in enumerate(matches):
             tempConfig = [] #0 -> name 1 -> value, 2 -> type    
             for groupNum in range(0, len(match.groups())):
-                print("Aviso miguel isto está a dar saltos de dois em dois, ver se é mesmo suposto e comentar")
                 groupNum = groupNum + 1
                 tempConfig.append(match.group(groupNum))
             tempConfig[1] = removeQuotes(tempConfig[1])
