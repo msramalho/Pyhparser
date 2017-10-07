@@ -60,7 +60,7 @@ The above code can be translated to:
 | Simple int | `(x, int)`  | 3        | x = int("3")|
 | Simple str | `(s, str)`  | MyString  | s = "MyString"|
 | Str with 3 words | `(S, str, 3)`  | A b C  | S = "A b C"|
-| list of 4 ints | `[myInts, list, 10, (int)]`  | 1 2 4 8  | myInts = [1,2,4,8]|
+| list of 4 ints | `[myInts, list, 4, (int)]`  | 1 2 4 8  | myInts = [1,2,4,8]|
 | list of 3 ints (see `x` above) | `[myInts2, list, {x}, (int)]`  | 10 11 99  | myInts2 = [10,11,99]|
 | dict of 2 elements | `[myDict, dict, 2, {(int), (string)}]`  | 10 blue 20 green  | s = {{10:"blue"},{20:"green"}}|
 | list of 2 different sized strings* | `[sizes, list, 2, (int)] [myStrings, list, 2, (str, {sizes;myStrings})]`  | 1 3  lorem ipsum dolor sit | sizes = [1,3]; myStrings = ["lorem", "ipsum dolor sit"]|
