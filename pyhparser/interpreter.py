@@ -25,8 +25,6 @@ class Interpreter:
             return self.getDictionary(e)
         elif "class" in e:
             return self.getClass(e)
-        else:
-            print("Leaf: %s" % (e))
 
     def getPrimitive(self, primitive):#match parse and input for primitive
         length = self.getLength(primitive)
