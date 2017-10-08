@@ -1,7 +1,8 @@
-from grammar import *
-from classParser import ClassParser
-from utils import *
-import utils as u
+import sys
+sys.path.append('../')
+from pyhparser.grammar import Grammar
+from pyhparser.classParser import ClassParser
+from pyhparser.utils import *
 
 class Pyhparser:
     def __init__(self, inputText, parseText, classes = [], stringConnector = " "):   #constructor
@@ -13,7 +14,7 @@ class Pyhparser:
         self.variables = dict()                 #the variables to be read
 
     def parse(self):    #the only function the user has to call
-        self.parserRead = Grammar().parseString(self.parseText)     #map the parser according to the grammar
+        self.parserRead = Grammar().parseString(self.parseText)   #map the parser according to the grammar
         self.inputRead = textToList(self.inputText)               #convert the input text into a list
         for element in self.parserRead:
             self.interpret(element)
@@ -54,7 +55,7 @@ class Pyhparser:
 
     def getClass(self, c):#match parse and input for class
         if not self.classes.hasClass(c["className"]):
-            raise Exception("Pyhparser class '%s' was not found, make sure you pass a list of the classes used as the third element in the constructor or 'classes' for named parameters" % c["className"])
+            raise Exception("Pyhparser: class '%s' was not found, make sure you pass a list of the classes used as the third element in the constructor or 'classes' for named parameters" % c["className"])
         parameters = dict()
         for param in c["structure"]:
             parameters.update({param["name"]: self.interpret(param["value"])})#recursive call
@@ -72,7 +73,7 @@ class Pyhparser:
             if length[1:-1] in self.variables:
                 return self.variables[length[1:-1]]
             else:
-                raise Exception("Pyhparsing: Length '%s' is not yet defined" % length)
+                raise Exception("Pyhparser: Length '%s' is not yet defined" % length)
         else:
             return int(length)
 
@@ -84,13 +85,15 @@ class Pyhparser:
         return length
 
     def getNextInput(self):#return the next value in inputRead list
-        res = None
         if self.inputIndex < len(self.inputRead):
             res = self.inputRead[self.inputIndex]
             self.inputIndex += 1
-        return res
+            return res
+        else:
+            raise Exception("Pyhparser: trying to get the next input, but input stream has no more data to process")
 
-
+    def fullParse(self):
+        return self.inputIndex >= len(self.inputRead)
 
     def printRecursive(self, e, i = 0):
         s = "    " #base separator
