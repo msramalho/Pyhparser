@@ -71,5 +71,5 @@ def Grammar():
 
     #grammar
     grammar<<= ZeroOrMore(primitive | container | dictionary | classFull)
-    grammar.ignore(comment)
+    grammar.ignore(comment) #ignore python-like inline comments
     return grammar
