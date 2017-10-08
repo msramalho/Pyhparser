@@ -24,7 +24,7 @@ def Grammar():
     sType = sType.setResultsName("type")
     cType = cType.setResultsName("type")
     varName = varName.setResultsName("varName")
-    length = length.setResultsName("length")
+    length = length.setResultsName("len")
 
     #grammar start
     grammar = Forward()
@@ -32,22 +32,24 @@ def Grammar():
     #primitives
     aType = Or([pType, sType]) # any type - primitive + sequences
     primitiveType = op + aType + cp #example (int) (str)
-    primitiveNameType = op + aType + c + varName + cp #example (int, name) (str, name)
+    primitiveTypeName = op + aType + c + varName + cp #example (int, name) (str, name)
     primitiveNameLen = op + sType + c + length + cp #example (str, 3) (str, {n}) NOT (int, 3)
-    primitiveNameTypeLen = op + sType + c + varName + c + length + cp #example (bytes, names, 3)
-    primitive = Or([primitiveType, primitiveNameType, primitiveNameLen, primitiveNameTypeLen]) #one of the above
+    primitiveTypeNameLen = op + sType + c + varName + c + length + cp #example (bytes, names, 3)
+    primitive = Or([primitiveType, primitiveTypeName, primitiveNameLen, primitiveTypeNameLen]) #one of the above
     primitive = Group(primitive.setResultsName("primitive"))
 
     #containers
-    containerSimple = osb + cType + c + length + c + grammar + csb #example [frozenset, 10, (int)]
-    containerName = osb + cType + c + length + c + grammar + c + varName + csb #example [tuple, 10, (int), name]
+    containerSimple = osb + cType + c + length + c + grammar.setResultsName("value") + csb #example [frozenset, 10, (int)]
+    containerName = osb + cType + c + length + c + grammar.setResultsName("value") + c + varName + csb #example [tuple, 10, (int), name]
     container = Or([containerSimple, containerName])
     container = Group(container.setResultsName("container"))
 
     #dictionaries
     dictionaryFirst = primitive.setResultsName("left")
     dictionarySecond = grammar.setResultsName("right")
-    dictionary = ocb + dictionaryFirst + c + dictionarySecond + ccb #example {int, float} {str, list}
+    dictionaryType = ocb + dictionaryFirst + c + dictionarySecond + ccb #example {int, float} {str, list}
+    dictionaryTypeName = ocb + dictionaryFirst + c + dictionarySecond + c + varName + ccb #example {int, float, name}
+    dictionary = Or([dictionaryType, dictionaryTypeName])
     dictionary = Group(dictionary.setResultsName("dictionary"))
 
     #grammar
