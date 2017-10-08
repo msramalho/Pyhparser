@@ -1,6 +1,6 @@
-#this class is used to create class instances from class names and an array of parameter
+#this class is used to create class instances from class names and an array of parameters
 
-class classParser:#stores and manages a list of the classes used by the parser, also creates instances of them
+class ClassParser:#stores and manages a list of the classes used by the parser, also creates instances of them
     def __init__(self, classList):
         self.classList = classList
         self.classNames = list(map(lambda c: c.__name__, classList))
