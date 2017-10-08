@@ -18,6 +18,7 @@ def Grammar():
     #useful base constructs
     varName = Combine(OneOrMore(Word(alphas)) + ZeroOrMore(Word(alphanums + "_"))) #example n camelCase n1 with_underscore
     length = Or([Word(nums), Combine(Literal("{") + varName + Literal("}"))]) #example 10 {varName}
+    comment = Suppress(Literal("#") + restOfLine)
 
     #set results name
     pType = pType.setResultsName("type")
@@ -56,4 +57,5 @@ def Grammar():
 
     #grammar
     grammar<<= ZeroOrMore(primitive | container | dictionary)
+    grammar.ignore(comment)
     return grammar
