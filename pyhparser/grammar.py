@@ -33,9 +33,9 @@ def Grammar():
     aType = Or([pType, sType]) # any type - primitive + sequences
     primitiveType = op + aType + cp #example (int) (str)
     primitiveTypeName = op + aType + c + varName + cp #example (int, name) (str, name)
-    primitiveNameLen = op + sType + c + length + cp #example (str, 3) (str, {n}) NOT (int, 3)
+    primitiveTypeLen = op + sType + c + length + cp #example (str, 3) (str, {n}) NOT (int, 3)
     primitiveTypeNameLen = op + sType + c + varName + c + length + cp #example (bytes, names, 3)
-    primitive = Or([primitiveType, primitiveTypeName, primitiveNameLen, primitiveTypeNameLen]) #one of the above
+    primitive = Or([primitiveType, primitiveTypeName, primitiveTypeLen, primitiveTypeNameLen]) #one of the above
     primitive = Group(primitive.setResultsName("primitive"))
 
     #containers
@@ -47,9 +47,11 @@ def Grammar():
     #dictionaries
     dictionaryFirst = primitive.setResultsName("left")
     dictionarySecond = grammar.setResultsName("right")
-    dictionaryType = ocb + dictionaryFirst + c + dictionarySecond + ccb #example {int, float} {str, list}
-    dictionaryTypeName = ocb + dictionaryFirst + c + dictionarySecond + c + varName + ccb #example {int, float, name}
-    dictionary = Or([dictionaryType, dictionaryTypeName])
+    dictionaryTypes = ocb + dictionaryFirst + c + dictionarySecond + ccb #example {int, float} {str, list}
+    dictionaryTypesName = ocb + dictionaryFirst + c + dictionarySecond + c + varName + ccb #example {(int), (float), name}
+    dictionaryTypesLen = ocb + dictionaryFirst + c + dictionarySecond + c + varName + ccb #example {(int), (float), 3} or {(int), (float), {lol}}
+    dictionaryTypesNameLen = ocb + dictionaryFirst + c + dictionarySecond + c + varName+ c + length + ccb #example {(int), (float), name, 4}
+    dictionary = Or([dictionaryTypes, dictionaryTypesName, dictionaryTypesLen, dictionaryTypesNameLen])
     dictionary = Group(dictionary.setResultsName("dictionary"))
 
     #grammar
