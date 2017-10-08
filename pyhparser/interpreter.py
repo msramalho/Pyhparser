@@ -14,7 +14,6 @@ class Interpreter:
     def parse(self):    #the only function the user has to call
         self.parserRead = Grammar().parseString(self.parseText)     #map the parser according to the grammar
         self.inputRead = u.textToList(self.inputText)               #convert the input text into a list
-        self.debug()
         for element in self.parserRead:
             self.interpret(element)
 
@@ -91,10 +90,6 @@ class Interpreter:
         return res
 
 
-    def debug(self):#TODO: remove debug function
-        print(self.parserRead)
-        print(self.inputRead)
-        self.printRecursive(self.parserRead)
 
     def printRecursive(self, e, i = 0):
         for element in e:
@@ -109,6 +104,9 @@ class Interpreter:
                 self.printRecursive(element, i+1)
             elif "class" in element:
                 print("%sclass: %s" % ("  " * i, element))
+                self.printRecursive(element, i+1)
+            elif "classParameter" in element:
+                print("%sclassParameter: %s" % ("  " * i, element))
                 self.printRecursive(element, i+1)
             else:
                 print("%sLeaf: %s" % ("  " * i, element))

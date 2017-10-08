@@ -57,14 +57,15 @@ def Grammar():
     dictionary = Group(dictionary.setResultsName("dictionary"))
 
     #classes
+    classType = Suppress(Literal("class"))
     className = varName.setResultsName("className")
     paramName = varName.setResultsName("name")
     paramValue = grammar.setResultsName("value")
-    classParameter = Group(paramName + cl + paramValue) # x:(int)
+    classParameter = Group((paramName + cl + paramValue).setResultsName("classParameter")) # x:(int)
     classStructure = ocb + OneOrMore(classParameter + Optional(c)) + ccb # {...} or {...,...}
-    classStructure = Group(classStructure).setResultsName("structure")
-    classBase = osb + Literal("class") + c + className + c + classStructure + csb # [class, className, structure]
-    classBaseName = osb + Literal("class") + c + className + c + classStructure + c + varName + csb # [class, className, structure, name]
+    classStructure = classStructure.setResultsName("structure")
+    classBase = osb + classType + c + className + c + classStructure + csb # [class, className, structure]
+    classBaseName = osb + classType + c + className + c + classStructure + c + varName + csb # [class, className, structure, name]
     classFull = Or([classBase, classBaseName])
     classFull = Group(classFull.setResultsName("class"))
 
