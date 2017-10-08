@@ -1,17 +1,19 @@
 from grammar import *
+from classParser import ClassParser
 import utils as u
 
 class Interpreter:
-    def __init__(self, inputText, parseText):   #constructor
-        self.inputText = inputText      #the input as text
-        self.inputIndex = 0             #the index at which getNextInput starts
-        self.parseText = parseText      #the parse rules as text
-        self.variables = dict()         #the variables to be read
+    def __init__(self, inputText, parseText, classes = [], stringConnector = " "):   #constructor
+        self.inputText = inputText              #the input as text
+        self.inputIndex = 0                     #the index at which getNextInput starts
+        self.parseText = parseText              #the parse rules as text
+        self.classes = ClassParser(classes)     #list of classes used (classParser)
+        self.stringConnector = stringConnector  #string added between strings in (str, 7)
+        self.variables = dict()                 #the variables to be read
 
-    def parse(self, stringConnector = " "):    #the only function the user has to call
+    def parse(self):    #the only function the user has to call
         self.parserRead = Grammar().parseString(self.parseText)     #map the parser according to the grammar
         self.inputRead = u.textToList(self.inputText)               #convert the input text into a list
-        self.stringConnector = stringConnector                      #string added between strings in (str, 7)
         self.debug()
         for element in self.parserRead:
             self.interpret(element)
@@ -51,7 +53,14 @@ class Interpreter:
         return self.addVar(dictionary, var)
 
     def getClass(self, c):#match parse and input for class
-        raise Exception("getClass not yet implemented")
+        if not self.classes.hasClass(c["className"]):
+            raise Exception("Pyhparser class '%s' was not found, make sure you pass a list of the classes used as the third element in the constructor or 'classes' for named parameters" % c["className"])
+        parameters = dict()
+        for param in c["structure"]:
+            parameters.update({param["name"]: self.interpret(param["value"])})#recursive call
+        var = self.classes.initClass(c["className"], parameters)
+        return self.addVar(c, var)
+
 
     def addVar(self, element, var):#add the variable to self.variables if it has a name
         if "varName" in element:
@@ -82,12 +91,12 @@ class Interpreter:
         return res
 
 
-    def debug(self):
+    def debug(self):#TODO: remove debug function
         print(self.parserRead)
         print(self.inputRead)
         self.printRecursive(self.parserRead)
 
-    def printRecursive(self, e, i = 0):#TODO: remove debug function
+    def printRecursive(self, e, i = 0):
         for element in e:
             if "primitive" in element:
                 print("%sprimitive: %s" % ("  " * i, element))
@@ -97,6 +106,9 @@ class Interpreter:
                 self.printRecursive(element, i+1)
             elif "dictionary" in element:
                 print("%sdictionary: %s" % ("  " * i, element))
+                self.printRecursive(element, i+1)
+            elif "class" in element:
+                print("%sclass: %s" % ("  " * i, element))
                 self.printRecursive(element, i+1)
             else:
                 print("%sLeaf: %s" % ("  " * i, element))
