@@ -3,6 +3,7 @@ from pyparsing import *
 def Grammar():
     #delimiters
     c = Suppress(",") #comma
+    cl = Suppress(":") #collon
     op = Suppress("(") #open parentheses
     cp = Suppress(")") #close parentheses
     osb = Suppress("[") #open square brackets
@@ -55,7 +56,19 @@ def Grammar():
     dictionary = Or([dictionaryTypes, dictionaryTypesName, dictionaryTypesLen, dictionaryTypesNameLen])
     dictionary = Group(dictionary.setResultsName("dictionary"))
 
+    #classes
+    className = varName.setResultsName("className")
+    paramName = varName.setResultsName("name")
+    paramValue = grammar.setResultsName("value")
+    classParameter = Group(paramName + cl + paramValue) # x:(int)
+    classStructure = ocb + OneOrMore(classParameter + Optional(c)) + ccb # {...} or {...,...}
+    classStructure = Group(classStructure).setResultsName("structure")
+    classBase = osb + Literal("class") + c + className + c + classStructure + csb # [class, className, structure]
+    classBaseName = osb + Literal("class") + c + className + c + classStructure + c + varName + csb # [class, className, structure, name]
+    classFull = Or([classBase, classBaseName])
+    classFull = Group(classFull.setResultsName("class"))
+
     #grammar
-    grammar<<= ZeroOrMore(primitive | container | dictionary)
+    grammar<<= ZeroOrMore(primitive | container | dictionary | classFull)
     grammar.ignore(comment)
     return grammar
