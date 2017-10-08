@@ -27,11 +27,18 @@ def addElementToContainer(container, element, connector = " "):#receives a rando
     elif type(container) == dict:
         container.update(element)
 
-    elif type(container) == str or type(container) == bytes:
+    elif type(container) == str:
         if len(container) == 0:
-            container = type(container)(element, 'utf8')
+            container = element
         else:
-            container+=type(container)(connector + element, 'utf8') #ads an extra space
+            container+=connector + element #ads an extra connector
+
+    elif type(container) == bytes:
+        if len(container) == 0:
+            container = bytes(element, 'utf8')
+        else:
+            container+=bytes(connector + element, 'utf8') #ads an extra connector
+
     elif type(container) == set: #convert to list -> add -> convert to set
         container = set(addElementToContainer(list(container), element))
     elif type(container) == frozenset: #convert to list -> add -> convert to frozenset
