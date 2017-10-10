@@ -108,6 +108,6 @@ The `structure` parameter is of the type: `{property1: elemType, property2: elem
 - [x] Easily changed;
 
 ## Drawbacks
-So far only **one** minor drawback exists, which is the `key` of a [dict](#dict), in python can be any [immutable](https://stackoverflow.com/questions/8056130/immutable-vs-mutable-types) variable. Of these, Pyhparser accepts all except `frozenset` as a key. Meaning you cannot have (in Pyhparser, but you can in Python) a `dict` like: `{frozenset([1,4,76]): 10}`. This is intentional and for Grammar simplicity purposes.
+So far only **one** minor drawback exists, which is the `key` of a [dict](4-dictionaries-dict), in python can be any [immutable](https://stackoverflow.com/questions/8056130/immutable-vs-mutable-types) variable. Of these, Pyhparser accepts all except `frozenset` as a key. Meaning you cannot have (in Pyhparser, but you can in Python) a `dict` like: `{frozenset([1,4,76]): 10}`. This is intentional and for Grammar simplicity purposes.
 
 
