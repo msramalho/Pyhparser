@@ -1,4 +1,5 @@
-# Python Hackathon + Data Mining Parser - The Parser Quintessence
+# Pyhparser
+# Hackathon + Data Mining Parser
 
 ## What is this?
 Pyhparser is a tool that parses input files input by describing the format the data is in, and allowing you to use them as your own variables. Due to its simplicity and speed it is great for *Hackathons*, *Data Mining* and day-to-day data tasks.
