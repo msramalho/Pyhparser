@@ -1,23 +1,28 @@
 # Python Hackathon Parser - The Hackathon Quintessence
 
 ## What is this?
-Pyhparser is a tool that parses input files input by simply specifying the format the data is in, and allowing you to use them as your own. It is great for *hackathons* and day-to-day data tasks.
-
+Pyhparser is a tool that parses input files input by describing the format the data is in, and allowing you to use them as your own variables. Due to its simplicity and speed it is great for *hackathons*, *Data Mining* and day-to-day data tasks.
+#### Built for Python3
 ## Why would you use it?
-Because you don't want to waste time during time-sensitive competitions in casting, iterating and reading variables. You want to focus on challenge and not on data parsing!
+Because:
+
+ 1. You don't want to waste time during time-sensitive competitions in casting, iterating and reading variables;
+ 1. You want to focus on building better algorithms and not on data parsing;
+ 1. You can define your parser file and reuse it, share it, or perform all necessary data input tinckering through it;
+ 1. It is intuitive and robust;
+ 1. Suggestions and requests can be submited through the [Issues](https://github.com/msramalho/Pyhparser-A-Python-Hackathon-Tool/issues) section.
 
 ## How do you use it?
 #### 1 - Install it on your computer
 `pip install git+https://github.com/msramalho/pyhparser`
 #### 2 - Copy and paste this code where you want to parse the input data:
 ```python
-from pyhparser import *
+from pyhparser import Pyhparser, readFile
 
-inputVar = "10"                                #if the data is in a file do readFile("inputFile.txt")
-parserVar = "(n, int)"                         #if the parser is in a file do readFile("parserFile.txt")
-classes = []                                   #list of classes you use, if they appear in the parser
+inputVar = "10"                                #if the data is in a file do readFile("input.txt")
+parserVar = "(int, n)"                         #if the parser is in a file do readFile("parser.txt")
 
-p = pyhparser(inputVar, parserVar, classes)    #create a pyhparser instance
+p = Pyhparser(inputVar, parserVar)             #create a pyhparser instance
 p.parse()                                      #execute the parsing
 tempGlobals = p.getVariables()                 #get the values of the created variables
 for key, value in tempGlobals.items():
@@ -28,28 +33,45 @@ The above code can be translated to:
 
 | Input File | Parser File  | Result |
 |:----------:|:------------:|:------:|
-| 10         | (x, int)     | x = 10, you can now use x in your script|
+| 10         | (int, n)     | n = 10, you can now use n in your script|
+
+---
 
 ## Instructions
+Notation used for the the Parser Grammar (reference):
+ - **\* temp** - the parser command creates a temporary variable (it is not added to Pyhparser parsed variables by name);
+ - **\* varName** - this variable is accessible through `varName`;
+ - **\* length** - the `length` attribute can be a number like `10` or a variable that has been declared previously in Pyhparser in the format: `{varName}` as long as it is a numeric variable (1 by default);
+ - **\* elemType** - the parser command `elemType` means that any other element of the Parser Grammar can be in here. Example `(long)`, `(str, 10, sentence)`, `[list, 10, (int)]`, ...
+ - **\* elemTypePrimitive** - the parser command `elemTypePrimitive` means that only the primitive elements of the Parser Grammar can be in here. Example `(long)`, `(str, 10, sentence)`, ...
 
-### Parsing format
+### Parser Grammar
+##### 1. Length 1 primitives: `int`, `long`, `float`, `bool`, `complex`:
+###### `(type)` - **\* temp**
+###### `(type, varName)` - **\* varName**
 
-- Single variables (int, str, bool, float, complex):
 
-    | Parser Format   | Is Temp? | example |
-    | ------------- |:-------------:| -------------| 
-    | (type)      | `true` | `(bool)` |
-    | (type, len)      | `true` | `(int, 10)` |
-    | (varName, type)      | `false` | `(myInt, int)` |
-    | (varName, type, len) | `false` | `(myStr, str, 3)` |
-    | (varName, type, {lenVarName}) | `false` | `(myStr2, str, {myInt})` |
-    
-- Container variables (list, dict, tuple):
-    
-    | Parser Format   | example |
-    | ------------- | -------------| 
-    | [varName, typeContainer, length, unitType]      | `[L, list, 10, (int)]` |
-    | [varName, class, className, params]      | `[C, class, MyClass, {x:(int)},{y:(bool)}]` |
+##### 2. Length > 1 primitives: `str`, `bytes`:
+###### `(type)` - **\* temp**
+###### `(type, varName)` - **\* varName**
+###### `(type, length)` - **\* temp** **\* length**
+###### `(type, varName, length)` - **\* varName** **\* length**
+For **str** and **bytes** the `length` is measured as spaces in the input, but you can choose what appears between the words in a string by setting the `stringConnector` in the Pyhparser constructor - default is `" "`, a space.
+
+##### 3. Containers: `list`, `set`, `bytearray`, `tuple`, `frozenset`:
+###### `[type, length, elemType]` - **\* temp** **\* length** **\* elemType**
+###### `[type, length, elemType, varName]` - **\* temp** **\* varName** **\* elemType**
+
+##### 4. Dictionaries: `dict`:
+###### `{elemTypePrimitive, elemType}` - **\* temp** **\* elemTypePrimitive** **\* elemType**
+###### `{elemTypePrimitive, elemType, varName}` - **\* varName** **\* elemTypePrimitive** **\* elemType**
+###### `{elemTypePrimitive, elemType, length}` - **\* length** **\* elemTypePrimitive** **\* elemType**
+###### `{elemTypePrimitive, elemType, length, varName}` - **\* varName** **\* length** **\* elemTypePrimitive** **\* elemType**
+
+##### 5. Classes: `class`:
+###### `[class, className, structure]` - **\* temp**
+###### `[class, className, structure, varName]` - **\* varName**
+The `structure` parameter is of the type: `{property1: elemType, property2: elemType, ...}`
 
 ---
 
@@ -57,35 +79,33 @@ The above code can be translated to:
 
 | Purpose  | Parser File  | Input File | Result |
 | ---------| ------------ | ---------- | ------ |
-| Simple int | `(x, int)`  | 3        | x = int("3")|
-| Simple str | `(s, str)`  | MyString  | s = "MyString"|
-| Str with 3 words | `(S, str, 3)`  | A b C  | S = "A b C"|
-| list of 4 ints | `[myInts, list, 10, (int)]`  | 1 2 4 8  | myInts = [1,2,4,8]|
-| list of 3 ints (see `x` above) | `[myInts2, list, {x}, (int)]`  | 10 11 99  | myInts2 = [10,11,99]|
-| dict of 2 elements | `[myDict, dict, 2, {(int), (string)}]`  | 10 blue 20 green  | s = {{10:"blue"},{20:"green"}}|
-| list of 2 different sized strings* | `[sizes, list, 2, (int)] [myStrings, list, 2, (str, {sizes;myStrings})]`  | 1 3  lorem ipsum dolor sit | sizes = [1,3]; myStrings = ["lorem", "ipsum dolor sit"]|
-| class instance of MyClass | `[mc, class, MyClass, {x:(int)},{y:(str)}]`  | 10 Dez | mc = MyClass(x:10,y:'Dez')|
-
-*the size of each string in the myStrings list is in the value of the corresponding index of the sizes list
+| Simple int | `(int, x)`  | 3        | x = int("3")|
+| Simple str | `(str, x)`  | MyString  | s = "MyString"|
+| Str with 3 words | `(str, S, 3)`  | A b C  | S = "A b C"|
+| Str with `x` words | `(str, S, {x})`  | A b C  | S = "A b C"|
+| list of 4 ints | `[list, 4, (int), myInts]`  | 1 2 4 8  | myInts = [1,2,4,8]|
+| list of 3 ints (see `x` above) | `[list, {x}, (int), myInts2]`  | 10 11 99  | myInts2 = [10,11,99]|
+| dict | `{(int), (str), myDict1}`  | 10 blue  | myDict1 = {10:"blue"}|
+| dict of 2 elements | `{(int), (str), myDict2, 2}`  | 10 blue 20 green  | myDict2 = {10:"blue", 20:"green"}|
+| class instance of MyClass | `[class, MyClass, {x:(int)},{y:(str)}, mc]`  | 10 Dez | mc = MyClass(x=10,y='Dez')|
 
 #### More examples:
 - See the [examples folder:](https://github.com/msramalho/pyhparser/tree/master/examples)
   - [Global example 01](https://github.com/msramalho/pyhparser/tree/master/examples/ex_01)
   - [Hashcode 2017 example](https://github.com/msramalho/pyhparser/tree/master/examples/ex_hashcode2017)
 - Class instance with 4 parameters (one of which is a dict):
-``` 
-[peter, class, Person, {age:(int)}, {name:(str)}, {height:(float)}, {keyValue:{(int), (float)}}]
 ```
-
+[class, Person, {age:(int), name:(str), height:(float), keyValue:{(int), (float)}}]
+```
 ## Features:
-- [x] Parse essential types: str, int, float, complex, bool
-- [x] Parse container types: list, dict, tuple
-- [x] Parse classes
-- [x] Recursive parsing
+- [x] Parse all python primitives;
+- [x] Parse all container types;
+- [x] Parse classes;
+- [x] Recursive parsing;
+- [x] Fast and robust;
+- [x] Easily changed;
 
-## TODO
-
-- [ ] Good wiki
-- [ ] Implement set parsing
+## Drawbacks
+So far only **one** minor drawback exists, which is the `key` of a [`dict`](#dict), in python can be any [immutable](https://stackoverflow.com/questions/8056130/immutable-vs-mutable-types) variable. Of these, Pyhparser accepts all except `frozenset` as a key. Meaning you cannot have (in Pyhparser, but you can in Python) a `dict` like: `{frozenset([1,4,76]): 10}`. This is intentional and for Grammar simplicity purposes.
 
 
