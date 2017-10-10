@@ -12,18 +12,13 @@ Carl Canadian
 666 sixHundredAndSixtySix
 this is my first tuple
 
-3
-1 4 5
-oneWord
-maybe with three more
-this string has five words
-
-4
+5
 3 limited to three
 2 only two
+2 two more
 6 what a big old string list
 8 this sentence is the biggest of them all
 
 10.23 55
-3.141592653 70 1300     muitoBom
-3.141592653 70 4        string com quatro palavras
+3.141592653 70 1300     veryNice
+3.141592653 70 4        string with four words
