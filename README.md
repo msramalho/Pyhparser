@@ -125,6 +125,7 @@ The `structure` parameter is of the type: `{property1: elemType, property2: elem
 | dict of 2 elements | `{(int), (str), myDict2, 2}`  | 10 blue 20 green  | myDict2 = {10:"blue", 20:"green"}|
 | class instance of MyClass | `[class, MyClass, {x:(int)},{y:(str)}, mc]`  | 10 Dez | mc = MyClass(x=10,y='Dez')|
 
+
 #### More examples:
 - See the [examples folder:](https://github.com/msramalho/pyhparser/tree/master/examples)
   - [Global example 01](https://github.com/msramalho/pyhparser/tree/master/examples/ex_01)
