@@ -1,20 +1,18 @@
-(nVideos, int)(nEndpoints, int) (nRequests, int) (nCaches, int) (cacheSize, int) #read five integers into variables
-            #notice there should be a space between '(nVideos, int)' and '(nEndpoints, int)', this was fixed automatically
+#read five integers into variables
+(int, nVideos) (int, nEndpoints) (int, nRequests) (int, nCaches) (int, cacheSize)
 
-[videos, list, {nVideos}, (int)]                        #list of ints with length equal to nVideos 
-[endpoints, list, {nEndpoints},                         #list of nEndpoints more complex elements (class Endpoint)
-    [temp, class, Endpoint,                             #class Endpoint
-        {datacenterLatency:(int)},                          #datacenterLatency
-        {countCaches:(tempCount, int)},                     #countCaches
-        {caches:                                            #list of caches {int, int}, the number of caches is read into tempCount on each iteration
-            [temp, list, {tempCount},{(int),(int)}]
+#list of ints with length equal to nVideos
+[list, {nVideos}, (int), videos]
+
+#list of nEndpoints more complex elements (class Endpoint)
+[list, {nEndpoints},
+    [class, Endpoint,
+        {datacenterLatency:(int), countCaches:(int, tempCount), caches:
+            [list, {tempCount}, {(int), (int)}]
         }
     ]
-]
-[requests, list, {nRequests},                           #list of Requests with nRequests items
-    [temp, class, Request,                              #class Request
-        {videoId:       (int)},                             #videoId
-        {endpointId:    (int)},                             #endpointId
-        {countRequests: (int)}                              #countRequests
-    ]
-]
+, endpoints]
+
+[list, {nRequests},
+    [class, Request, {videoId: (int), endpointId: (int), countRequests: (int)}]
+, requests]
