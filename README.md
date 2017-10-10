@@ -38,6 +38,39 @@ The above code can be translated to:
 ---
 
 ## Instructions
+
+### Constructor
+#### `Pyhparser(inputText, parseText, classes = [], stringConnector = " ")`
+ - `inputText` - the text where the input data is;
+ - `parseText` - the text where the parser commands are;
+ - `classes` - a list of classes needed to parse the `inputText` with this `parseText`;
+ - `stringConnector` - the string used to glue `str` parts together, since the default is `" "` they are returned separated by spaces (`this is an example`), but you can also decide to glue them with `"_"` (`this_is_an_example`).
+ 
+ ### Methods
+ #### `.parse()`
+ Executes the parsing. 
+ #### `.getVariables()`
+ Returns the parsed variables. 
+ #### `.fullParse()`
+ Returns `True` if all the input data was parsed and `False` otherwise. 
+ #### `.printRecursive(element, index = 0)`
+ Prints in a recursive and visually elegant manner the structure of the parsed format from the `parseText`, can be used for debug purposes. For example:  `[list, {total}, {(int, sizeOfLine), (str, {sizeOfLine})}, sizesList]` would be displayed as:
+ ```
+ container: ['list', '{total}', [['int', 'sizeOfLine'], ['str', '{sizeOfLine}']], 'sizesList']
+    Leaf: list
+    Leaf: {total}
+    dictionary: [['int', 'sizeOfLine'], ['str', '{sizeOfLine}']]
+        primitive: ['int', 'sizeOfLine']
+            Leaf: int
+            Leaf: sizeOfLine
+        primitive: ['str', '{sizeOfLine}']
+            Leaf: str
+            Leaf: {sizeOfLine}
+    Leaf: sizesList
+ ```
+
+---
+
 Notation used for the the Parser Grammar (reference):
  - **\* temp** - the parser command creates a temporary variable (it is not added to Pyhparser parsed variables by name);
  - **\* varName** - this variable is accessible through `varName`;
