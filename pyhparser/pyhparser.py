@@ -62,6 +62,8 @@ class Pyhparser:
         var = self.classes.initClass(c["className"], parameters)
         return self.addVar(c, var)
 
+    def getVariables(self):#get a copy of the variables
+        return self.variables
 
     def addVar(self, element, var):#add the variable to self.variables if it has a name
         if "varName" in element:
