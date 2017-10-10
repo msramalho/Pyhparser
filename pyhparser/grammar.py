@@ -49,7 +49,7 @@ def Grammar():
     #dictionaries
     dictionaryFirst = primitive.setResultsName("left")
     dictionarySecond = grammar.setResultsName("right")
-    dictionaryTypes = ocb + dictionaryFirst + c + dictionarySecond + ccb #example {int, float} {str, list}
+    dictionaryTypes = ocb + dictionaryFirst + c + dictionarySecond + ccb #example {primitive, anything}
     dictionaryTypesName = ocb + dictionaryFirst + c + dictionarySecond + c + varName + ccb #example {(int), (float), name}
     dictionaryTypesLen = ocb + dictionaryFirst + c + dictionarySecond + c + varName + ccb #example {(int), (float), 3} or {(int), (float), {lol}}
     dictionaryTypesNameLen = ocb + dictionaryFirst + c + dictionarySecond + c + varName+ c + length + ccb #example {(int), (float), name, 4}

@@ -1,5 +1,5 @@
 import time
-from pyhparser import *
+from pyhparser import Pyhparser, readFile
 
 def validTypeSingle(t):
     return t in ("int", "str", "bool", "float", "complex")
