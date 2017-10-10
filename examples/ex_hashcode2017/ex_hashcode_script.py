@@ -19,5 +19,8 @@ class Request:
     def __str__(self):
          return ("%d requests for video %d coming from endpoint %d." % (self.countRequests, self.videoId, self.endpointId))
 
-
-fullTest(readFile("ex_hashcode_input.txt"), readFile("ex_hashcode_parser.txt"), "Example 01", expectedCountVars = 10, classes= [Endpoint, Request])
+parserText = readFile("ex_hashcode_parser.txt")
+inputFiles = ["ex_hashcode_input.txt", "me_at_the_zoo.in", "videos_worth_spreading.in", "kittens.in"]
+debugPrint = False
+for fname in inputFiles:
+    fullTest(readFile(fname), parserText, "Example Hashcode2017(%s)" % fname, expectedCountVars = 9, classes= [Endpoint, Request], debugPrint = debugPrint)

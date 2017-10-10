@@ -1,30 +1,19 @@
-{delimiter,' ', str}               #this is a comment ####
+(int, n) (str, name, {n})
+[list, {n}, (int), myInts]
+[list, {n}, (str, 2), Names]
 
-#you can have as many whitespaces as you want
+[list, {n},
+    [list, {n}, (int)]
+,Numbers]
+{(int), (str), myDicts, 2}
 
-.body       #this separates the configuration functions from the rest, if you have no configurations to specify this line is unnecessary
+[list, 2, {(int), (str)}, myDictsList]
+[tuple, 5, (str), myTuple]
 
-
-
-(n, int) (Name, str, {n})
-[myInts, list, {n}, (int)]
-[Names, list, {n}, (str, 2)]
-[Numbers, list, {n}, [temp, list, {n}, (int)]] #the temp varName is required but this will be considered a local variable so you can name it whatever you want
-[myDicts, dict, 2, {(int), (str)}]
-[myDictsList, list, 2, {(int), (str)}]
-[myTuple, tuple, 5, (str)]
-
-(total, int)
-[sizesList, list, {total}, (int)]
-[sentences, list, {total}, (str, {sizesList;sentences})]
-
-#mais testes com tamanho dinâmico
-(countLists, int)
-[mySentences, list, {countLists}, {(myInt, int),(str, {myInt})}] #myInt is created as a global variable and is updated every time
+(int, total)
+[list, {total}, {(int, sizeOfLine), (str, {sizeOfLine})}, sizesList]
 
 #classes
-[complexNumber, class, Complex, {realpart: (float)}, {imagpart: (int)}]
-[complexNumber2, class, ComplexSpecial, {realpart: (float)}, {imagpart: (int)}, {special: {(int), (str)}}]
-[complexNumber2, class, ComplexSpecial, {realpart: (float)}, {imagpart: (int)}, {special: {(myInt, int), (str, {myInt})}}]
-
-
+[class, Complex, {realpart: (float), imagpart: (int)}, cn1]
+[class, Complex, {realpart: (float), imagpart: (int), special: {(int), (str)}}, cn2]
+[class, Complex, {realpart: (float), imagpart: (int), special: {(int, myInt), (str, {myInt})}}, cn3]
