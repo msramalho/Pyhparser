@@ -11,7 +11,7 @@ Because:
  1. You want to focus on building better algorithms and not on data parsing;
  1. You can define your parser file and reuse it, share it, or perform all necessary data input tinckering through it;
  1. It is intuitive and robust;
- 1. Suggestions and requests can be submited through the [Issues](https://github.com/msramalho/Pyhparser-A-Python-Hackathon-Tool/issues) section.
+ 1. Suggestions and requests can be submited through the [Issues](https://github.com/msramalho/Pyhparser/issues) section.
 
 ## How do you use it?
 #### 1 - Install it on your computer
@@ -46,14 +46,14 @@ The above code can be translated to:
  - `parseText` - the text where the parser commands are;
  - `classes` - a list of classes needed to parse the `inputText` with this `parseText`;
  - `stringConnector` - the string used to glue `str` parts together, since the default is `" "` they are returned separated by spaces (`this is an example`), but you can also decide to glue them with `"_"` (`this_is_an_example`).
- 
+
  ### Methods
  #### `.parse()`
- Executes the parsing. 
+ Executes the parsing.
  #### `.getVariables()`
- Returns the parsed variables. 
+ Returns the parsed variables.
  #### `.fullParse()`
- Returns `True` if all the input data was parsed and `False` otherwise. 
+ Returns `True` if all the input data was parsed and `False` otherwise.
  #### `.printRecursive(element, index = 0)`
  Prints in a recursive and visually elegant manner the structure of the parsed format from the `parseText`, can be used for debug purposes. For example:  `[list, {total}, {(int, sizeOfLine), (str, {sizeOfLine})}, sizesList]` would be displayed as:
  ```
