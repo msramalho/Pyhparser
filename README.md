@@ -46,31 +46,33 @@ Notation used for the the Parser Grammar (reference):
  - **\* elemTypePrimitive** - the parser command `elemTypePrimitive` means that only the primitive elements of the Parser Grammar can be in here. Example `(long)`, `(str, 10, sentence)`, ...
 
 ### Parser Grammar
-##### 1. Length 1 primitives: `int`, `long`, `float`, `bool`, `complex`:
-###### `(type)` - **\* temp**
-###### `(type, varName)` - **\* varName**
+#### 1. Length 1 primitives: `int`, `long`, `float`, `bool`, `complex`:
+##### `(type)` - **\* temp**
+##### `(type, varName)` - **\* varName**
 
 
-##### 2. Length > 1 primitives: `str`, `bytes`:
-###### `(type)` - **\* temp**
-###### `(type, varName)` - **\* varName**
-###### `(type, length)` - **\* temp** **\* length**
-###### `(type, varName, length)` - **\* varName** **\* length**
+
+#### 2. Length > 1 primitives: `str`, `bytes`:
+##### `(type)` - **\* temp**
+##### `(type, varName)` - **\* varName**
+##### `(type, length)` - **\* temp** **\* length**
+##### `(type, varName, length)` - **\* varName** **\* length**
 For **str** and **bytes** the `length` is measured as spaces in the input, but you can choose what appears between the words in a string by setting the `stringConnector` in the Pyhparser constructor - default is `" "`, a space.
 
-##### 3. Containers: `list`, `set`, `bytearray`, `tuple`, `frozenset`:
-###### `[type, length, elemType]` - **\* temp** **\* length** **\* elemType**
-###### `[type, length, elemType, varName]` - **\* temp** **\* varName** **\* elemType**
+#### 3. Containers: `list`, `set`, `bytearray`, `tuple`, `frozenset`:
+##### `[type, length, elemType]` - **\* temp** **\* length** **\* elemType**
+##### `[type, length, elemType, varName]` - **\* temp** **\* varName** **\* elemType**
 
-##### 4. Dictionaries: `dict`:
-###### `{elemTypePrimitive, elemType}` - **\* temp** **\* elemTypePrimitive** **\* elemType**
-###### `{elemTypePrimitive, elemType, varName}` - **\* varName** **\* elemTypePrimitive** **\* elemType**
-###### `{elemTypePrimitive, elemType, length}` - **\* length** **\* elemTypePrimitive** **\* elemType**
-###### `{elemTypePrimitive, elemType, length, varName}` - **\* varName** **\* length** **\* elemTypePrimitive** **\* elemType**
 
-##### 5. Classes: `class`:
-###### `[class, className, structure]` - **\* temp**
-###### `[class, className, structure, varName]` - **\* varName**
+#### 4. Dictionaries: `dict`:
+##### `{elemTypePrimitive, elemType}` - **\* temp** **\* elemTypePrimitive** **\* elemType**
+##### `{elemTypePrimitive, elemType, varName}` - **\* varName** **\* elemTypePrimitive** **\* elemType**
+##### `{elemTypePrimitive, elemType, length}` - **\* length** **\* elemTypePrimitive** **\* elemType**
+##### `{elemTypePrimitive, elemType, length, varName}` - **\* varName** **\* length** **\* elemTypePrimitive** **\* elemType**
+
+#### 5. Classes: `class`:
+##### `[class, className, structure]` - **\* temp**
+##### `[class, className, structure, varName]` - **\* varName**
 The `structure` parameter is of the type: `{property1: elemType, property2: elemType, ...}`
 
 ---
@@ -106,6 +108,6 @@ The `structure` parameter is of the type: `{property1: elemType, property2: elem
 - [x] Easily changed;
 
 ## Drawbacks
-So far only **one** minor drawback exists, which is the `key` of a [`dict`](#dict), in python can be any [immutable](https://stackoverflow.com/questions/8056130/immutable-vs-mutable-types) variable. Of these, Pyhparser accepts all except `frozenset` as a key. Meaning you cannot have (in Pyhparser, but you can in Python) a `dict` like: `{frozenset([1,4,76]): 10}`. This is intentional and for Grammar simplicity purposes.
+So far only **one** minor drawback exists, which is the `key` of a [dict](#dict), in python can be any [immutable](https://stackoverflow.com/questions/8056130/immutable-vs-mutable-types) variable. Of these, Pyhparser accepts all except `frozenset` as a key. Meaning you cannot have (in Pyhparser, but you can in Python) a `dict` like: `{frozenset([1,4,76]): 10}`. This is intentional and for Grammar simplicity purposes.
 
 
