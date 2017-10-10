@@ -2,7 +2,8 @@
 
 ## What is this?
 Pyhparser is a tool that parses input files input by describing the format the data is in, and allowing you to use them as your own variables. Due to its simplicity and speed it is great for *hackathons*, *Data Mining* and day-to-day data tasks.
-#### Built for Python3
+
+
 ## Why would you use it?
 Because:
 
@@ -138,7 +139,8 @@ The `structure` parameter is of the type: `{property1: elemType, property2: elem
 - [x] Parse classes;
 - [x] Recursive parsing;
 - [x] Fast and robust;
-- [x] Easily changed;
+- [x] Easily upgraded and fixed;
+- [x] Small _learning curve_ (get going in under an hour :muscle:);
 
 ## Drawbacks
 So far only **one** minor drawback exists, which is the `key` of a [dict](#4-dictionaries-dict), in python can be any [immutable](https://stackoverflow.com/questions/8056130/immutable-vs-mutable-types) variable. Of these, Pyhparser accepts all except `frozenset` as a key. Meaning you cannot have (in Pyhparser, but you can in Python) a `dict` like: `{frozenset([1,4,76]): 10}`. This is intentional and for Grammar simplicity purposes.
