@@ -1,5 +1,4 @@
-import sys, time
-sys.path.append('../pyhparser')
+import time
 from pyhparser import *
 
 def validTypeSingle(t):
@@ -14,13 +13,15 @@ def printVars(myVars):
         else:
             print("%20s:  %s" % (key, value))
 
-def fullTest(inputVar, parserVar, title = "Random Test", expectedCountVars = 0, classes = []):
+def fullTest(inputVar, parserVar, title = "Random Test", expectedCountVars = 0, classes = [], debugPrint = False):
     startTime = time.time()
     print("--------------------------------%s--------------------------------" % title)
-    p = pyhparser(inputVar, parserVar, classes)         #create a pyhparser instance
+    p = Pyhparser(inputVar, parserVar, classes)         #create a pyhparser instance
     p.parse()                                           #execute the parsing
-    printVars(p.getVariables())                         #display values of created variables
-    result = "SUCCESS" if expectedCountVars == p.countVariables() else "FAILURE"
-    print("TOTAL VARS: %d\nTIME: %s\nRESULT: %s" % (p.countVariables(), time.time() - startTime, result))        #display number of created variables
+    if debugPrint:
+        p.printRecursive(p.parserRead)
+        printVars(p.variables)                              #display values of created variables
+    result = "SUCCESS" if expectedCountVars == len(p.variables) else "FAILURE"
+    print("TOTAL VARS: %d\nTIME: %s\nRESULT: %s" % (len(p.variables), time.time() - startTime, result))        #display number of created variables
     print("--------------------------------REACHED THE END--------------------------------")
     return p.getVariables()
