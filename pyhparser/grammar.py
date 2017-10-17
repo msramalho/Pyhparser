@@ -12,7 +12,7 @@ def Grammar():
     ccb = Suppress("}") #close curly brackets
 
     #elementary operators
-    pType = Or([Literal("int"), Literal("long"), Literal("float"), Literal("bool"), Literal("complex")]) #primitive types
+    pType = Or([Literal("int"), Literal("float"), Literal("bool"), Literal("complex")]) #primitive types
     sType = Or([Literal("str"), Literal("bytes")]) #sequence types
     cType = Or([Literal("list"), Literal("set"), Literal("bytearray"), Literal("tuple"), Literal("frozenset")]) #container types
 
