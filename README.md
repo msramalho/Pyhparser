@@ -34,7 +34,7 @@ The above code can be translated to:
 
 | Input File | Parser File  | Result |
 |:----------:|:------------:|:------:|
-| 10         | (int, n)     | n = 10, you can now use n in your script|
+| 10         | (int, n)     | n = 10, you can now use `n` in your script|
 
 ---
 
@@ -84,7 +84,7 @@ Notation used for the the Parser Grammar (reference):
 ##### `(type)` - **\* temp**
 ##### `(type, varName)` - **\* varName**
 
-
+---
 
 #### 2. Length > 1 primitives: `str`, `bytes`:
 ##### `(type)` - **\* temp**
@@ -93,16 +93,21 @@ Notation used for the the Parser Grammar (reference):
 ##### `(type, varName, length)` - **\* varName** **\* length**
 For **str** and **bytes** the `length` is measured as spaces in the input, but you can choose what appears between the words in a string by setting the `stringConnector` in the Pyhparser constructor - default is `" "`, a space.
 
+---
+
 #### 3. Containers: `list`, `set`, `bytearray`, `tuple`, `frozenset`:
 ##### `[type, length, elemType]` - **\* temp** **\* length** **\* elemType**
 ##### `[type, length, elemType, varName]` - **\* temp** **\* varName** **\* elemType**
 
+---
 
 #### 4. Dictionaries: `dict`:
 ##### `{elemTypePrimitive, elemType}` - **\* temp** **\* elemTypePrimitive** **\* elemType**
 ##### `{elemTypePrimitive, elemType, varName}` - **\* varName** **\* elemTypePrimitive** **\* elemType**
 ##### `{elemTypePrimitive, elemType, length}` - **\* length** **\* elemTypePrimitive** **\* elemType**
 ##### `{elemTypePrimitive, elemType, length, varName}` - **\* varName** **\* length** **\* elemTypePrimitive** **\* elemType**
+
+---
 
 #### 5. Classes: `class`:
 ##### `[class, className, structure]` - **\* temp**
