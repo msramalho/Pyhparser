@@ -76,11 +76,11 @@ Notation used for the the Parser Grammar (reference):
  - **\* temp** - the parser command creates a temporary variable (it is not added to Pyhparser parsed variables by name);
  - **\* varName** - this variable is accessible through `varName`;
  - **\* length** - the `length` attribute can be a number like `10` or a variable that has been declared previously in Pyhparser in the format: `{varName}` as long as it is a numeric variable (1 by default);
- - **\* elemType** - the parser command `elemType` means that any other element of the Parser Grammar can be in here. Example `(long)`, `(str, 10, sentence)`, `[list, 10, (int)]`, ...
- - **\* elemTypePrimitive** - the parser command `elemTypePrimitive` means that only the primitive elements of the Parser Grammar can be in here. Example `(long)`, `(str, 10, sentence)`, ...
+ - **\* elemType** - the parser command `elemType` means that any other element of the Parser Grammar can be in here. Example `(int)`, `(str, 10, sentence)`, `[list, 10, (int)]`, ...
+ - **\* elemTypePrimitive** - the parser command `elemTypePrimitive` means that only the primitive elements of the Parser Grammar can be in here. Example `(int)`, `(str, 10, sentence)`, ...
 
 ### Parser Grammar
-#### 1. Length 1 primitives: `int`, `long`, `float`, `bool`, `complex`:
+#### 1. Length 1 primitives: `int`, `float`, `bool`, `complex`:
 ##### `(type)` - **\* temp**
 ##### `(type, varName)` - **\* varName**
 
