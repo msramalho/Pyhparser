@@ -14,8 +14,8 @@ class Pyhparser:
         self.variables = dict()                 #the variables to be read
 
     def parse(self):    #the only function the user has to call
-        self.parserRead = Grammar().parseString(self.parseText)   #map the parser according to the grammar
-        self.inputRead = textToList(self.inputText)               #convert the input text into a list
+        self.parserRead = Grammar().parseString(self.parseText) #map the parser according to the grammar
+        self.inputRead = textToList(self.inputText, self.stringConnector) #convert the input text into a list
         for element in self.parserRead:
             self.interpret(element)
 
@@ -117,3 +117,6 @@ class Pyhparser:
                 self.printRecursive(element, i+1)
             else:
                 print("%sLeaf: %s" % (s * i, element))
+
+
+#TODO: https://stackoverflow.com/questions/44787714/python-parsing-file-into-data-structure
