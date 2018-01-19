@@ -3,7 +3,7 @@ python:
   - "3.6"
 cache: pip
 install:
-  - pip install
+  - pip install ../Pyhparser/
 script:
   - python -m unittest
 notifications:
