@@ -117,6 +117,3 @@ class Pyhparser:
                 self.printRecursive(element, i+1)
             else:
                 print("%sLeaf: %s" % (s * i, element))
-
-
-#TODO: https://stackoverflow.com/questions/44787714/python-parsing-file-into-data-structure
