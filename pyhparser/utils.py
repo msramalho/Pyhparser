@@ -15,7 +15,8 @@ def textToList(text, delimiter = None):
     for line in text.splitlines():
         parts = line.split(delimiter)
         for part in parts:
-            temp.append(part)
+            if len(part) > 0:
+                temp.append(part)
     return temp
 
 
