@@ -6,7 +6,7 @@ install:
   - pip install ../Pyhparser/
   - pip install coverage
 script:
-  # - python -m unittest
   - coverage run tests/tests.py
+  - coverage report -m
 notifications:
   email: false
