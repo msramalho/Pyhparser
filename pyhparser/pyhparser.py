@@ -98,7 +98,7 @@ class Pyhparser:
         return self.inputIndex >= len(self.inputRead)
 
     def printRecursive(self, e, i = 0):
-        s = "    " #base separator
+        s = " " * 4 #base separator
         for element in e:
             if "primitive" in element:
                 print("%sprimitive: %s" % (s * i, element))
