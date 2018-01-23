@@ -1,10 +1,6 @@
-import re
-
-
 def readFile(filename):  # read a file or print an error
-    def readFile(filename):
-        with open(filename, "r", encoding="utf-8") as file:
-            return file.read()
+    with open(filename, "r", encoding="utf-8") as file:
+        return file.read()
 
 
 def textToList(text, delimiter=None):

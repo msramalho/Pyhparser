@@ -6,7 +6,7 @@ o joao gosta de comer bolachas com pera e cacau
 Alice 160 Bob 170 Charles 200
 10 20 30 40 50 60 70 80 90 100
 6
-Bobi 23 24 25 30 28 26
+Bobi 23 24 25 30 28 26 kg
 
 3 Bartholomew JoJo Simpson
 101 120 5455

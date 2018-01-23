@@ -29,13 +29,13 @@ class BehaviouralTest(unittest.TestCase):
         self.assertTrue(t.fullParse())
 
     def test_readFile(self):
-        inputVar = readFile("fakeFile.txt")
-        self.assertEqual(None, inputVar)
+        with self.assertRaises(IOError):
+            inputVar = readFile("fakeFile.txt")
 
     def test_print_recursive(self):
         inputVar = readFile("tests/input.txt")
         parserVar = readFile("tests/parser.txt")
-        p = Pyhparser(inputVar, parserVar, [Complex])
+        p = Pyhparser(inputVar, parserVar, [Complex, Dog])
         p.parse()
         p.printRecursive(p.parserRead)
 
