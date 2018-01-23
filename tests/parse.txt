@@ -1,0 +1,29 @@
+(int, n)
+(str, frase, {n})
+(bytes, fraseB, {n})
+{(int), (bool), myDic}
+(int, n2)
+{(str), (float), pesos, {n2}}
+[tuple, {n}, (int), tabuada]
+(int, nPesos)
+[class, Dog, {nome:(str), pesos:[list, {nPesos}, (int)], unidade:(str)}, meuCao]
+
+(int, n) (str, name, {n})
+[list, {n}, (int), myInts]
+[list, {n}, (str, 2), Names]
+
+[list, {n},
+    [list, {n}, (int)]
+,Numbers]
+{(int), (str), myDicts, 2}
+
+[list, 2, {(int), (str)}, myDictsList]
+[tuple, 5, (str), myTuple]
+
+(int, total)
+[list, {total}, {(int, sizeOfLine), (str, {sizeOfLine})}, sizesList]
+
+#classes
+[class, Complex, {realpart: (float), imagpart: (int)}, cn1]
+[class, Complex, {realpart: (float), imagpart: (int), special: {(int), (str)}}, cn2]
+[class, Complex, {realpart: (float), imagpart: (int), special: {(int, myInt), (str, {myInt})}}, cn3]
