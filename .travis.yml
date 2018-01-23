@@ -1,0 +1,12 @@
+language: python
+python:
+  - "3.6"
+cache: pip
+install:
+  - pip install ../Pyhparser/
+  - pip install coverage
+script:
+  - coverage run tests/tests.py
+  - coverage report -m
+notifications:
+  email: false

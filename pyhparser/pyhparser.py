@@ -98,7 +98,7 @@ class Pyhparser:
         return self.inputIndex >= len(self.inputRead)
 
     def printRecursive(self, e, i = 0):
-        s = "    " #base separator
+        s = " " * 4 #base separator
         for element in e:
             if "primitive" in element:
                 print("%sprimitive: %s" % (s * i, element))
@@ -117,6 +117,3 @@ class Pyhparser:
                 self.printRecursive(element, i+1)
             else:
                 print("%sLeaf: %s" % (s * i, element))
-
-
-#TODO: https://stackoverflow.com/questions/44787714/python-parsing-file-into-data-structure
