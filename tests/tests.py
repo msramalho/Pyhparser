@@ -29,8 +29,8 @@ class BehaviouralTest(unittest.TestCase):
         self.assertTrue(t.fullParse())
 
     def test_readFile(self):
-        with self.assertRaises(IOError):
-            inputVar = readFile("fakeFile.txt")
+        inputVar = readFile("fakeFile.txt")
+        self.assertEqual(None, inputVar)
 
     def test_print_recursive(self):
         inputVar = readFile("tests/input.txt")
