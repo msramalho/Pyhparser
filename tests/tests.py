@@ -1,13 +1,45 @@
 import unittest
 import sys
 sys.path.append('../')
-from pyhparser import Pyhparser
+from pyhparser import Pyhparser, readFile
+
+
+def getParseObject(inputs, parser, classes=[]):
+    p = Pyhparser(inputs, parser, classes)
+    p.parse()
+    return p
 
 
 def getParseVars(inputs, parser, classes=[]):
-    p = Pyhparser(inputs, parser, classes)
-    p.parse()
-    return p.getVariables()
+    return getParseObject(inputs, parser, classes).getVariables()
+
+
+class BehaviouralTest(unittest.TestCase):
+    def test_invalid_len(self):
+        with self.assertRaises(Exception):
+            t = getParseVars("my string", "(str, {notCreated})")
+
+    def test_no_more_input(self):
+        with self.assertRaises(Exception):
+            t = getParseVars("my string", "(str, a, 10)")
+
+    def test_fullParse(self):
+        s = "my string is very long"
+        t = getParseObject(s, "(str, 2)")
+        self.assertFalse(t.fullParse())
+        t = getParseObject(s, "(str, 5)")
+        self.assertTrue(t.fullParse())
+
+    def test_readFile(self):
+        with self.assertRaises(IOError):
+            inputVar = readFile("fakeFile.txt")
+
+    def test_print_recursive(self):
+        inputVar = readFile("../examples/ex_01/ex_01_input.txt")
+        parserVar = readFile("../examples/ex_01/ex_01_parser.txt")
+        p = Pyhparser(inputVar, parserVar, [Complex])
+        p.parse()
+        p.printRecursive(p.parserRead)
 
 
 class PrimitivesTest(unittest.TestCase):
@@ -31,6 +63,14 @@ class PrimitivesTest(unittest.TestCase):
             t = getParseVars(s, "(float,n)")
             self.assertDictEqual(t, {"n": f})
 
+    def test_bytes(self):
+        t = getParseVars("a", "(bytes)")
+        self.assertDictEqual(t, {})
+        t = getParseVars("a b", "(bytes, 2)")
+        self.assertDictEqual(t, {})
+        t = getParseVars("a b c", "(bytes, bb, 3)")
+        self.assertDictEqual(t, {'bb': b'a b c'})
+
 
 class ContainersTest(unittest.TestCase):
     def test_list(self):
@@ -40,6 +80,18 @@ class ContainersTest(unittest.TestCase):
         self.assertDictEqual(t, {"l1": l})
         with self.assertRaises(ValueError):
             t = getParseVars("10.12", "(int)")
+
+    def test_set(self):
+        t = getParseVars("10 20 30", "[set, 3, (int), s1]")
+        self.assertDictEqual(t, {'s1': {10, 20, 30}})
+        t = getParseVars("10 10 10 20 30", "[set, 5, (int), s2]")
+        self.assertDictEqual(t, {'s2': {10, 20, 30}})
+
+    def test_frozen_set(self):
+        t = getParseVars("10 20 30", "[frozenset, 3, (int), fs1]")
+        self.assertDictEqual(t, {'fs1': {10, 20, 30}})
+        t = getParseVars("10 10 10 20 30", "[frozenset, 5, (int), fs2]")
+        self.assertDictEqual(t, {'fs2': {10, 20, 30}})
 
 
 class DictionaryTest(unittest.TestCase):
