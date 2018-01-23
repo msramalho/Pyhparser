@@ -138,5 +138,12 @@ class Complex:
         self.special = special
 
 
+class Dog:
+    def __init__(self, nome, pesos, unidade):
+        self.nome = nome
+        self.pesos = pesos
+        self.unidade = unidade
+
+
 if __name__ == '__main__':
     unittest.main()
