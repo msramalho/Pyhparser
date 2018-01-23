@@ -1,11 +1,7 @@
 import re
 
 def readFile(filename):#read a file or print an error
-    try:
-        file = open(filename, encoding="utf-8")
-    except IOError:
-        print("ERROR - Unable to open file %s" % filename)
-        exit()
+    file = open(filename, encoding="utf-8")
     temp = file.read()
     file.close()
     return temp
@@ -50,4 +46,6 @@ def cast(to, value = None):
     primitiveTypes = {'int': int, 'float': float, 'complex':complex, 'bool': bool, 'str': str, 'bytes':bytes, 'list': list, 'dict': dict, 'tuple': tuple, 'set': set, 'frozenset': frozenset, 'bytearray': bytearray}
     if value == None:
         return primitiveTypes[to]()
+    if to == "bytes":
+        return primitiveTypes[to](value, encoding="utf-8")
     return primitiveTypes[to](value)
