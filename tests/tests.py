@@ -1,6 +1,4 @@
 import unittest
-import sys
-sys.path.append('../')
 from pyhparser import Pyhparser, readFile
 
 
@@ -35,8 +33,8 @@ class BehaviouralTest(unittest.TestCase):
             inputVar = readFile("fakeFile.txt")
 
     def test_print_recursive(self):
-        inputVar = readFile("../examples/ex_01/ex_01_input.txt")
-        parserVar = readFile("../examples/ex_01/ex_01_parser.txt")
+        inputVar = readFile("tests/input.txt")
+        parserVar = readFile("tests/parser.txt")
         p = Pyhparser(inputVar, parserVar, [Complex])
         p.parse()
         p.printRecursive(p.parserRead)
